@@ -86,6 +86,8 @@ auto Socket::sendBytes(const void *buffer, size_t size) -> int {
     return 0;
 }
 
+auto Socket::sendString(std::string_view str) -> int { return sendBytes(str.data(), str.size()); }
+
 auto Socket::close() -> int {
     if (fd < 0) {
         return 0;

@@ -63,6 +63,9 @@ int main(int argc, char **argv) {
     auto server = Socket::createServer(port);
     auto client = server.acceptClient();
     std::cout << "Client connected\n";
+
+    client.sendString("+PONG\r\n");
+
     server.close();
 
     return 0;

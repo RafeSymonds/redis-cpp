@@ -49,6 +49,12 @@ class Socket {
 
     auto sendBytes(const void *buffer, size_t size) -> int;
 
+    template <typename T> auto recvObject(T &obj) -> ssize_t { return recvBytes(&obj, sizeof(T)); }
+
+    template <typename T> auto sendObject(const T &obj) -> int { return sendBytes(&obj, sizeof(T)); }
+
+    auto sendString(std::string_view str) -> int;
+
     auto close() -> int;
 
     auto getFd() const -> int { return fd; }
