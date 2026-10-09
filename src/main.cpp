@@ -64,7 +64,27 @@ int main(int argc, char **argv) {
     auto client = server.acceptClient();
     std::cout << "Client connected\n";
 
-    client.sendString("+PONG\r\n");
+    while (true) {
+
+        std::string buffer(100, '\0');
+
+        uint32_t total = 0;
+
+        while (true) {
+            client.recvBytes(buffer.data() + total, 1);
+
+            if (buffer.starts_with("*1\r\n$4\r\nPING\r\n")) {
+                break;
+            }
+
+            total += 1;
+        }
+
+        std::println("sending pong from request {}", buffer);
+        std::fflush(stdout);
+
+        client.sendString("+PONG\r\n");
+    }
 
     server.close();
 
