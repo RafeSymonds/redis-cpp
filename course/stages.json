@@ -1,0 +1,994 @@
+[
+ {
+  "n": 1,
+  "slug": "jm1",
+  "name": "Bind to a port",
+  "extension": "Base",
+  "difficulty": "very_easy",
+  "file": "course/stages/001-jm1-bind-to-a-port.md"
+ },
+ {
+  "n": 2,
+  "slug": "rg2",
+  "name": "Respond to PING",
+  "extension": "Base",
+  "difficulty": "easy",
+  "file": "course/stages/002-rg2-respond-to-ping.md"
+ },
+ {
+  "n": 3,
+  "slug": "wy1",
+  "name": "Respond to multiple PINGs",
+  "extension": "Base",
+  "difficulty": "easy",
+  "file": "course/stages/003-wy1-respond-to-multiple-pings.md"
+ },
+ {
+  "n": 4,
+  "slug": "zu2",
+  "name": "Handle concurrent clients",
+  "extension": "Base",
+  "difficulty": "medium",
+  "file": "course/stages/004-zu2-handle-concurrent-clients.md"
+ },
+ {
+  "n": 5,
+  "slug": "qq0",
+  "name": "Implement the ECHO command",
+  "extension": "Base",
+  "difficulty": "medium",
+  "file": "course/stages/005-qq0-implement-the-echo-command.md"
+ },
+ {
+  "n": 6,
+  "slug": "la7",
+  "name": "Implement the SET & GET commands",
+  "extension": "Base",
+  "difficulty": "medium",
+  "file": "course/stages/006-la7-implement-the-set-get-commands.md"
+ },
+ {
+  "n": 7,
+  "slug": "yz1",
+  "name": "Expiry",
+  "extension": "Base",
+  "difficulty": "medium",
+  "file": "course/stages/007-yz1-expiry.md"
+ },
+ {
+  "n": 8,
+  "slug": "zg5",
+  "name": "RDB file config",
+  "extension": "RDB Persistence",
+  "difficulty": "easy",
+  "file": "course/stages/008-zg5-rdb-file-config.md"
+ },
+ {
+  "n": 9,
+  "slug": "jz6",
+  "name": "Read a key",
+  "extension": "RDB Persistence",
+  "difficulty": "medium",
+  "file": "course/stages/009-jz6-read-a-key.md"
+ },
+ {
+  "n": 10,
+  "slug": "gc6",
+  "name": "Read a string value",
+  "extension": "RDB Persistence",
+  "difficulty": "medium",
+  "file": "course/stages/010-gc6-read-a-string-value.md"
+ },
+ {
+  "n": 11,
+  "slug": "jw4",
+  "name": "Read multiple keys",
+  "extension": "RDB Persistence",
+  "difficulty": "medium",
+  "file": "course/stages/011-jw4-read-multiple-keys.md"
+ },
+ {
+  "n": 12,
+  "slug": "dq3",
+  "name": "Read multiple string values",
+  "extension": "RDB Persistence",
+  "difficulty": "medium",
+  "file": "course/stages/012-dq3-read-multiple-string-values.md"
+ },
+ {
+  "n": 13,
+  "slug": "sm4",
+  "name": "Read value with expiry",
+  "extension": "RDB Persistence",
+  "difficulty": "medium",
+  "file": "course/stages/013-sm4-read-value-with-expiry.md"
+ },
+ {
+  "n": 14,
+  "slug": "uj3",
+  "name": "Default AOF options",
+  "extension": "AOF Persistence",
+  "difficulty": "easy",
+  "file": "course/stages/014-uj3-default-aof-options.md"
+ },
+ {
+  "n": 15,
+  "slug": "vd9",
+  "name": "AOF options from flags",
+  "extension": "AOF Persistence",
+  "difficulty": "easy",
+  "file": "course/stages/015-vd9-aof-options-from-flags.md"
+ },
+ {
+  "n": 16,
+  "slug": "fm0",
+  "name": "Create append-only directory",
+  "extension": "AOF Persistence",
+  "difficulty": "easy",
+  "file": "course/stages/016-fm0-create-append-only-directory.md"
+ },
+ {
+  "n": 17,
+  "slug": "dw4",
+  "name": "Create append-only file",
+  "extension": "AOF Persistence",
+  "difficulty": "easy",
+  "file": "course/stages/017-dw4-create-append-only-file.md"
+ },
+ {
+  "n": 18,
+  "slug": "pb9",
+  "name": "Create manifest file",
+  "extension": "AOF Persistence",
+  "difficulty": "easy",
+  "file": "course/stages/018-pb9-create-manifest-file.md"
+ },
+ {
+  "n": 19,
+  "slug": "dc8",
+  "name": "Write a single command",
+  "extension": "AOF Persistence",
+  "difficulty": "hard",
+  "file": "course/stages/019-dc8-write-a-single-command.md"
+ },
+ {
+  "n": 20,
+  "slug": "fi1",
+  "name": "Write multiple commands",
+  "extension": "AOF Persistence",
+  "difficulty": "medium",
+  "file": "course/stages/020-fi1-write-multiple-commands.md"
+ },
+ {
+  "n": 21,
+  "slug": "ep6",
+  "name": "Filter write commands",
+  "extension": "AOF Persistence",
+  "difficulty": "easy",
+  "file": "course/stages/021-ep6-filter-write-commands.md"
+ },
+ {
+  "n": 22,
+  "slug": "xz2",
+  "name": "Replay a single command",
+  "extension": "AOF Persistence",
+  "difficulty": "hard",
+  "file": "course/stages/022-xz2-replay-a-single-command.md"
+ },
+ {
+  "n": 23,
+  "slug": "kn2",
+  "name": "Replay multiple commands",
+  "extension": "AOF Persistence",
+  "difficulty": "medium",
+  "file": "course/stages/023-kn2-replay-multiple-commands.md"
+ },
+ {
+  "n": 24,
+  "slug": "bw1",
+  "name": "Configure listening port",
+  "extension": "Replication",
+  "difficulty": "easy",
+  "file": "course/stages/024-bw1-configure-listening-port.md"
+ },
+ {
+  "n": 25,
+  "slug": "ye5",
+  "name": "The INFO command",
+  "extension": "Replication",
+  "difficulty": "easy",
+  "file": "course/stages/025-ye5-the-info-command.md"
+ },
+ {
+  "n": 26,
+  "slug": "hc6",
+  "name": "The INFO command on a replica",
+  "extension": "Replication",
+  "difficulty": "medium",
+  "file": "course/stages/026-hc6-the-info-command-on-a-replica.md"
+ },
+ {
+  "n": 27,
+  "slug": "xc1",
+  "name": "Initial replication ID and offset",
+  "extension": "Replication",
+  "difficulty": "easy",
+  "file": "course/stages/027-xc1-initial-replication-id-and-offset.md"
+ },
+ {
+  "n": 28,
+  "slug": "gl7",
+  "name": "Send handshake (1/3)",
+  "extension": "Replication",
+  "difficulty": "easy",
+  "file": "course/stages/028-gl7-send-handshake-1-3.md"
+ },
+ {
+  "n": 29,
+  "slug": "eh4",
+  "name": "Send handshake (2/3)",
+  "extension": "Replication",
+  "difficulty": "easy",
+  "file": "course/stages/029-eh4-send-handshake-2-3.md"
+ },
+ {
+  "n": 30,
+  "slug": "ju6",
+  "name": "Send handshake (3/3)",
+  "extension": "Replication",
+  "difficulty": "medium",
+  "file": "course/stages/030-ju6-send-handshake-3-3.md"
+ },
+ {
+  "n": 31,
+  "slug": "fj0",
+  "name": "Receive handshake (1/2)",
+  "extension": "Replication",
+  "difficulty": "easy",
+  "file": "course/stages/031-fj0-receive-handshake-1-2.md"
+ },
+ {
+  "n": 32,
+  "slug": "vm3",
+  "name": "Receive handshake (2/2)",
+  "extension": "Replication",
+  "difficulty": "easy",
+  "file": "course/stages/032-vm3-receive-handshake-2-2.md"
+ },
+ {
+  "n": 33,
+  "slug": "cf8",
+  "name": "Empty RDB transfer",
+  "extension": "Replication",
+  "difficulty": "easy",
+  "file": "course/stages/033-cf8-empty-rdb-transfer.md"
+ },
+ {
+  "n": 34,
+  "slug": "zn8",
+  "name": "Single-replica propagation",
+  "extension": "Replication",
+  "difficulty": "medium",
+  "file": "course/stages/034-zn8-single-replica-propagation.md"
+ },
+ {
+  "n": 35,
+  "slug": "hd5",
+  "name": "Multi-replica propagation",
+  "extension": "Replication",
+  "difficulty": "hard",
+  "file": "course/stages/035-hd5-multi-replica-propagation.md"
+ },
+ {
+  "n": 36,
+  "slug": "yg4",
+  "name": "Command processing",
+  "extension": "Replication",
+  "difficulty": "hard",
+  "file": "course/stages/036-yg4-command-processing.md"
+ },
+ {
+  "n": 37,
+  "slug": "xv6",
+  "name": "ACKs with no commands",
+  "extension": "Replication",
+  "difficulty": "easy",
+  "file": "course/stages/037-xv6-acks-with-no-commands.md"
+ },
+ {
+  "n": 38,
+  "slug": "yd3",
+  "name": "ACKs with commands",
+  "extension": "Replication",
+  "difficulty": "medium",
+  "file": "course/stages/038-yd3-acks-with-commands.md"
+ },
+ {
+  "n": 39,
+  "slug": "my8",
+  "name": "WAIT with no replicas",
+  "extension": "Replication",
+  "difficulty": "medium",
+  "file": "course/stages/039-my8-wait-with-no-replicas.md"
+ },
+ {
+  "n": 40,
+  "slug": "tu8",
+  "name": "WAIT with no commands",
+  "extension": "Replication",
+  "difficulty": "medium",
+  "file": "course/stages/040-tu8-wait-with-no-commands.md"
+ },
+ {
+  "n": 41,
+  "slug": "na2",
+  "name": "WAIT with multiple commands",
+  "extension": "Replication",
+  "difficulty": "hard",
+  "file": "course/stages/041-na2-wait-with-multiple-commands.md"
+ },
+ {
+  "n": 42,
+  "slug": "cc3",
+  "name": "The TYPE command",
+  "extension": "Streams",
+  "difficulty": "easy",
+  "file": "course/stages/042-cc3-the-type-command.md"
+ },
+ {
+  "n": 43,
+  "slug": "cf6",
+  "name": "Create a stream",
+  "extension": "Streams",
+  "difficulty": "medium",
+  "file": "course/stages/043-cf6-create-a-stream.md"
+ },
+ {
+  "n": 44,
+  "slug": "hq8",
+  "name": "Validating entry IDs",
+  "extension": "Streams",
+  "difficulty": "easy",
+  "file": "course/stages/044-hq8-validating-entry-ids.md"
+ },
+ {
+  "n": 45,
+  "slug": "yh3",
+  "name": "Partially auto-generated IDs",
+  "extension": "Streams",
+  "difficulty": "medium",
+  "file": "course/stages/045-yh3-partially-auto-generated-ids.md"
+ },
+ {
+  "n": 46,
+  "slug": "xu6",
+  "name": "Fully auto-generated IDs",
+  "extension": "Streams",
+  "difficulty": "medium",
+  "file": "course/stages/046-xu6-fully-auto-generated-ids.md"
+ },
+ {
+  "n": 47,
+  "slug": "zx1",
+  "name": "Query entries from stream",
+  "extension": "Streams",
+  "difficulty": "medium",
+  "file": "course/stages/047-zx1-query-entries-from-stream.md"
+ },
+ {
+  "n": 48,
+  "slug": "yp1",
+  "name": "Query with -",
+  "extension": "Streams",
+  "difficulty": "easy",
+  "file": "course/stages/048-yp1-query-with.md"
+ },
+ {
+  "n": 49,
+  "slug": "fs1",
+  "name": "Query with +",
+  "extension": "Streams",
+  "difficulty": "easy",
+  "file": "course/stages/049-fs1-query-with.md"
+ },
+ {
+  "n": 50,
+  "slug": "um0",
+  "name": "Query single stream using XREAD",
+  "extension": "Streams",
+  "difficulty": "medium",
+  "file": "course/stages/050-um0-query-single-stream-using-xread.md"
+ },
+ {
+  "n": 51,
+  "slug": "ru9",
+  "name": "Query multiple streams using XREAD",
+  "extension": "Streams",
+  "difficulty": "medium",
+  "file": "course/stages/051-ru9-query-multiple-streams-using-xread.md"
+ },
+ {
+  "n": 52,
+  "slug": "bs1",
+  "name": "Blocking reads",
+  "extension": "Streams",
+  "difficulty": "hard",
+  "file": "course/stages/052-bs1-blocking-reads.md"
+ },
+ {
+  "n": 53,
+  "slug": "hw1",
+  "name": "Blocking reads without timeout",
+  "extension": "Streams",
+  "difficulty": "medium",
+  "file": "course/stages/053-hw1-blocking-reads-without-timeout.md"
+ },
+ {
+  "n": 54,
+  "slug": "xu1",
+  "name": "Blocking reads using $",
+  "extension": "Streams",
+  "difficulty": "easy",
+  "file": "course/stages/054-xu1-blocking-reads-using.md"
+ },
+ {
+  "n": 55,
+  "slug": "si4",
+  "name": "The INCR command (1/3)",
+  "extension": "Transactions",
+  "difficulty": "easy",
+  "file": "course/stages/055-si4-the-incr-command-1-3.md"
+ },
+ {
+  "n": 56,
+  "slug": "lz8",
+  "name": "The INCR command (2/3)",
+  "extension": "Transactions",
+  "difficulty": "easy",
+  "file": "course/stages/056-lz8-the-incr-command-2-3.md"
+ },
+ {
+  "n": 57,
+  "slug": "mk1",
+  "name": "The INCR command (3/3)",
+  "extension": "Transactions",
+  "difficulty": "easy",
+  "file": "course/stages/057-mk1-the-incr-command-3-3.md"
+ },
+ {
+  "n": 58,
+  "slug": "pn0",
+  "name": "The MULTI command",
+  "extension": "Transactions",
+  "difficulty": "easy",
+  "file": "course/stages/058-pn0-the-multi-command.md"
+ },
+ {
+  "n": 59,
+  "slug": "lo4",
+  "name": "The EXEC command",
+  "extension": "Transactions",
+  "difficulty": "easy",
+  "file": "course/stages/059-lo4-the-exec-command.md"
+ },
+ {
+  "n": 60,
+  "slug": "we1",
+  "name": "Empty transaction",
+  "extension": "Transactions",
+  "difficulty": "hard",
+  "file": "course/stages/060-we1-empty-transaction.md"
+ },
+ {
+  "n": 61,
+  "slug": "rs9",
+  "name": "Queueing commands",
+  "extension": "Transactions",
+  "difficulty": "medium",
+  "file": "course/stages/061-rs9-queueing-commands.md"
+ },
+ {
+  "n": 62,
+  "slug": "fy6",
+  "name": "Executing a transaction",
+  "extension": "Transactions",
+  "difficulty": "hard",
+  "file": "course/stages/062-fy6-executing-a-transaction.md"
+ },
+ {
+  "n": 63,
+  "slug": "rl9",
+  "name": "The DISCARD command",
+  "extension": "Transactions",
+  "difficulty": "easy",
+  "file": "course/stages/063-rl9-the-discard-command.md"
+ },
+ {
+  "n": 64,
+  "slug": "sg9",
+  "name": "Failures within transactions",
+  "extension": "Transactions",
+  "difficulty": "medium",
+  "file": "course/stages/064-sg9-failures-within-transactions.md"
+ },
+ {
+  "n": 65,
+  "slug": "jf8",
+  "name": "Multiple transactions",
+  "extension": "Transactions",
+  "difficulty": "medium",
+  "file": "course/stages/065-jf8-multiple-transactions.md"
+ },
+ {
+  "n": 66,
+  "slug": "jb7",
+  "name": "The WATCH command",
+  "extension": "Optimistic Locking",
+  "difficulty": "easy",
+  "file": "course/stages/066-jb7-the-watch-command.md"
+ },
+ {
+  "n": 67,
+  "slug": "jq9",
+  "name": "WATCH inside transaction",
+  "extension": "Optimistic Locking",
+  "difficulty": "easy",
+  "file": "course/stages/067-jq9-watch-inside-transaction.md"
+ },
+ {
+  "n": 68,
+  "slug": "mh8",
+  "name": "Tracking key modifications",
+  "extension": "Optimistic Locking",
+  "difficulty": "medium",
+  "file": "course/stages/068-mh8-tracking-key-modifications.md"
+ },
+ {
+  "n": 69,
+  "slug": "fp0",
+  "name": "Watching multiple keys",
+  "extension": "Optimistic Locking",
+  "difficulty": "medium",
+  "file": "course/stages/069-fp0-watching-multiple-keys.md"
+ },
+ {
+  "n": 70,
+  "slug": "uo9",
+  "name": "Watching missing keys",
+  "extension": "Optimistic Locking",
+  "difficulty": "easy",
+  "file": "course/stages/070-uo9-watching-missing-keys.md"
+ },
+ {
+  "n": 71,
+  "slug": "bn1",
+  "name": "The UNWATCH command",
+  "extension": "Optimistic Locking",
+  "difficulty": "easy",
+  "file": "course/stages/071-bn1-the-unwatch-command.md"
+ },
+ {
+  "n": 72,
+  "slug": "fn4",
+  "name": "Unwatch on EXEC",
+  "extension": "Optimistic Locking",
+  "difficulty": "easy",
+  "file": "course/stages/072-fn4-unwatch-on-exec.md"
+ },
+ {
+  "n": 73,
+  "slug": "hq1",
+  "name": "Unwatch on DISCARD",
+  "extension": "Optimistic Locking",
+  "difficulty": "easy",
+  "file": "course/stages/073-hq1-unwatch-on-discard.md"
+ },
+ {
+  "n": 74,
+  "slug": "mh6",
+  "name": "Create a list",
+  "extension": "Lists",
+  "difficulty": "easy",
+  "file": "course/stages/074-mh6-create-a-list.md"
+ },
+ {
+  "n": 75,
+  "slug": "tn7",
+  "name": "Append an element",
+  "extension": "Lists",
+  "difficulty": "easy",
+  "file": "course/stages/075-tn7-append-an-element.md"
+ },
+ {
+  "n": 76,
+  "slug": "lx4",
+  "name": "Append multiple elements",
+  "extension": "Lists",
+  "difficulty": "easy",
+  "file": "course/stages/076-lx4-append-multiple-elements.md"
+ },
+ {
+  "n": 77,
+  "slug": "sf6",
+  "name": "List elements (positive indexes)",
+  "extension": "Lists",
+  "difficulty": "easy",
+  "file": "course/stages/077-sf6-list-elements-positive-indexes.md"
+ },
+ {
+  "n": 78,
+  "slug": "ri1",
+  "name": "List elements (negative indexes)",
+  "extension": "Lists",
+  "difficulty": "easy",
+  "file": "course/stages/078-ri1-list-elements-negative-indexes.md"
+ },
+ {
+  "n": 79,
+  "slug": "gu5",
+  "name": "Prepend elements",
+  "extension": "Lists",
+  "difficulty": "easy",
+  "file": "course/stages/079-gu5-prepend-elements.md"
+ },
+ {
+  "n": 80,
+  "slug": "fv6",
+  "name": "Query list length",
+  "extension": "Lists",
+  "difficulty": "easy",
+  "file": "course/stages/080-fv6-query-list-length.md"
+ },
+ {
+  "n": 81,
+  "slug": "ef1",
+  "name": "Remove an element",
+  "extension": "Lists",
+  "difficulty": "easy",
+  "file": "course/stages/081-ef1-remove-an-element.md"
+ },
+ {
+  "n": 82,
+  "slug": "jp1",
+  "name": "Remove multiple elements",
+  "extension": "Lists",
+  "difficulty": "easy",
+  "file": "course/stages/082-jp1-remove-multiple-elements.md"
+ },
+ {
+  "n": 83,
+  "slug": "ec3",
+  "name": "Blocking retrieval",
+  "extension": "Lists",
+  "difficulty": "medium",
+  "file": "course/stages/083-ec3-blocking-retrieval.md"
+ },
+ {
+  "n": 84,
+  "slug": "xj7",
+  "name": "Blocking retrieval with timeout",
+  "extension": "Lists",
+  "difficulty": "medium",
+  "file": "course/stages/084-xj7-blocking-retrieval-with-timeout.md"
+ },
+ {
+  "n": 85,
+  "slug": "mx3",
+  "name": "Subscribe to a channel",
+  "extension": "Pub/Sub",
+  "difficulty": "easy",
+  "file": "course/stages/085-mx3-subscribe-to-a-channel.md"
+ },
+ {
+  "n": 86,
+  "slug": "zc8",
+  "name": "Subscribe to multiple channels",
+  "extension": "Pub/Sub",
+  "difficulty": "easy",
+  "file": "course/stages/086-zc8-subscribe-to-multiple-channels.md"
+ },
+ {
+  "n": 87,
+  "slug": "aw8",
+  "name": "Enter subscribed mode",
+  "extension": "Pub/Sub",
+  "difficulty": "medium",
+  "file": "course/stages/087-aw8-enter-subscribed-mode.md"
+ },
+ {
+  "n": 88,
+  "slug": "lf1",
+  "name": "PING in subscribed mode",
+  "extension": "Pub/Sub",
+  "difficulty": "easy",
+  "file": "course/stages/088-lf1-ping-in-subscribed-mode.md"
+ },
+ {
+  "n": 89,
+  "slug": "hf2",
+  "name": "Publish a message",
+  "extension": "Pub/Sub",
+  "difficulty": "easy",
+  "file": "course/stages/089-hf2-publish-a-message.md"
+ },
+ {
+  "n": 90,
+  "slug": "dn4",
+  "name": "Deliver messages",
+  "extension": "Pub/Sub",
+  "difficulty": "hard",
+  "file": "course/stages/090-dn4-deliver-messages.md"
+ },
+ {
+  "n": 91,
+  "slug": "ze9",
+  "name": "Unsubscribe",
+  "extension": "Pub/Sub",
+  "difficulty": "medium",
+  "file": "course/stages/091-ze9-unsubscribe.md"
+ },
+ {
+  "n": 92,
+  "slug": "ct1",
+  "name": "Create a sorted set",
+  "extension": "Sorted Sets",
+  "difficulty": "easy",
+  "file": "course/stages/092-ct1-create-a-sorted-set.md"
+ },
+ {
+  "n": 93,
+  "slug": "hf1",
+  "name": "Add members",
+  "extension": "Sorted Sets",
+  "difficulty": "medium",
+  "file": "course/stages/093-hf1-add-members.md"
+ },
+ {
+  "n": 94,
+  "slug": "lg6",
+  "name": "Retrieve member rank",
+  "extension": "Sorted Sets",
+  "difficulty": "medium",
+  "file": "course/stages/094-lg6-retrieve-member-rank.md"
+ },
+ {
+  "n": 95,
+  "slug": "ic1",
+  "name": "List sorted set members",
+  "extension": "Sorted Sets",
+  "difficulty": "easy",
+  "file": "course/stages/095-ic1-list-sorted-set-members.md"
+ },
+ {
+  "n": 96,
+  "slug": "bj4",
+  "name": "ZRANGE with negative indexes",
+  "extension": "Sorted Sets",
+  "difficulty": "easy",
+  "file": "course/stages/096-bj4-zrange-with-negative-indexes.md"
+ },
+ {
+  "n": 97,
+  "slug": "kn4",
+  "name": "Count sorted set members",
+  "extension": "Sorted Sets",
+  "difficulty": "easy",
+  "file": "course/stages/097-kn4-count-sorted-set-members.md"
+ },
+ {
+  "n": 98,
+  "slug": "gd7",
+  "name": "Retrieve member score",
+  "extension": "Sorted Sets",
+  "difficulty": "medium",
+  "file": "course/stages/098-gd7-retrieve-member-score.md"
+ },
+ {
+  "n": 99,
+  "slug": "sq7",
+  "name": "Remove a member",
+  "extension": "Sorted Sets",
+  "difficulty": "easy",
+  "file": "course/stages/099-sq7-remove-a-member.md"
+ },
+ {
+  "n": 100,
+  "slug": "bq9",
+  "name": "Create a bitmap",
+  "extension": "Bitmaps",
+  "difficulty": "medium",
+  "file": "course/stages/100-bq9-create-a-bitmap.md"
+ },
+ {
+  "n": 101,
+  "slug": "qj1",
+  "name": "Retrieve a bit",
+  "extension": "Bitmaps",
+  "difficulty": "easy",
+  "file": "course/stages/101-qj1-retrieve-a-bit.md"
+ },
+ {
+  "n": 102,
+  "slug": "yj2",
+  "name": "Read a string as bits",
+  "extension": "Bitmaps",
+  "difficulty": "medium",
+  "file": "course/stages/102-yj2-read-a-string-as-bits.md"
+ },
+ {
+  "n": 103,
+  "slug": "pk5",
+  "name": "Read bits as a string",
+  "extension": "Bitmaps",
+  "difficulty": "easy",
+  "file": "course/stages/103-pk5-read-bits-as-a-string.md"
+ },
+ {
+  "n": 104,
+  "slug": "yf6",
+  "name": "Grow a bitmap",
+  "extension": "Bitmaps",
+  "difficulty": "easy",
+  "file": "course/stages/104-yf6-grow-a-bitmap.md"
+ },
+ {
+  "n": 105,
+  "slug": "nx3",
+  "name": "Count set bits",
+  "extension": "Bitmaps",
+  "difficulty": "medium",
+  "file": "course/stages/105-nx3-count-set-bits.md"
+ },
+ {
+  "n": 106,
+  "slug": "hv4",
+  "name": "AND two bitmaps",
+  "extension": "Bitmaps",
+  "difficulty": "medium",
+  "file": "course/stages/106-hv4-and-two-bitmaps.md"
+ },
+ {
+  "n": 107,
+  "slug": "dk2",
+  "name": "AND bitmaps of different lengths",
+  "extension": "Bitmaps",
+  "difficulty": "medium",
+  "file": "course/stages/107-dk2-and-bitmaps-of-different-lengths.md"
+ },
+ {
+  "n": 108,
+  "slug": "fr8",
+  "name": "OR two bitmaps",
+  "extension": "Bitmaps",
+  "difficulty": "easy",
+  "file": "course/stages/108-fr8-or-two-bitmaps.md"
+ },
+ {
+  "n": 109,
+  "slug": "zt4",
+  "name": "Respond to GEOADD",
+  "extension": "Geospatial Commands",
+  "difficulty": "easy",
+  "file": "course/stages/109-zt4-respond-to-geoadd.md"
+ },
+ {
+  "n": 110,
+  "slug": "ck3",
+  "name": "Validate coordinates",
+  "extension": "Geospatial Commands",
+  "difficulty": "easy",
+  "file": "course/stages/110-ck3-validate-coordinates.md"
+ },
+ {
+  "n": 111,
+  "slug": "tn5",
+  "name": "Store a location",
+  "extension": "Geospatial Commands",
+  "difficulty": "medium",
+  "file": "course/stages/111-tn5-store-a-location.md"
+ },
+ {
+  "n": 112,
+  "slug": "cr3",
+  "name": "Calculate location score",
+  "extension": "Geospatial Commands",
+  "difficulty": "hard",
+  "file": "course/stages/112-cr3-calculate-location-score.md"
+ },
+ {
+  "n": 113,
+  "slug": "xg4",
+  "name": "Respond to GEOPOS",
+  "extension": "Geospatial Commands",
+  "difficulty": "easy",
+  "file": "course/stages/113-xg4-respond-to-geopos.md"
+ },
+ {
+  "n": 114,
+  "slug": "hb5",
+  "name": "Decode coordinates",
+  "extension": "Geospatial Commands",
+  "difficulty": "hard",
+  "file": "course/stages/114-hb5-decode-coordinates.md"
+ },
+ {
+  "n": 115,
+  "slug": "ek6",
+  "name": "Calculate distance",
+  "extension": "Geospatial Commands",
+  "difficulty": "medium",
+  "file": "course/stages/115-ek6-calculate-distance.md"
+ },
+ {
+  "n": 116,
+  "slug": "rm9",
+  "name": "Search within radius",
+  "extension": "Geospatial Commands",
+  "difficulty": "easy",
+  "file": "course/stages/116-rm9-search-within-radius.md"
+ },
+ {
+  "n": 117,
+  "slug": "jn4",
+  "name": "Respond to ACL WHOAMI",
+  "extension": "Authentication",
+  "difficulty": "easy",
+  "file": "course/stages/117-jn4-respond-to-acl-whoami.md"
+ },
+ {
+  "n": 118,
+  "slug": "gx8",
+  "name": "Respond to ACL GETUSER",
+  "extension": "Authentication",
+  "difficulty": "easy",
+  "file": "course/stages/118-gx8-respond-to-acl-getuser.md"
+ },
+ {
+  "n": 119,
+  "slug": "ql6",
+  "name": "The nopass flag",
+  "extension": "Authentication",
+  "difficulty": "easy",
+  "file": "course/stages/119-ql6-the-nopass-flag.md"
+ },
+ {
+  "n": 120,
+  "slug": "pl7",
+  "name": "The passwords property",
+  "extension": "Authentication",
+  "difficulty": "easy",
+  "file": "course/stages/120-pl7-the-passwords-property.md"
+ },
+ {
+  "n": 121,
+  "slug": "uv9",
+  "name": "Setting default user password",
+  "extension": "Authentication",
+  "difficulty": "medium",
+  "file": "course/stages/121-uv9-setting-default-user-password.md"
+ },
+ {
+  "n": 122,
+  "slug": "hz3",
+  "name": "The AUTH command",
+  "extension": "Authentication",
+  "difficulty": "medium",
+  "file": "course/stages/122-hz3-the-auth-command.md"
+ },
+ {
+  "n": 123,
+  "slug": "nm2",
+  "name": "Enforce authentication",
+  "extension": "Authentication",
+  "difficulty": "medium",
+  "file": "course/stages/123-nm2-enforce-authentication.md"
+ },
+ {
+  "n": 124,
+  "slug": "ws7",
+  "name": "Authenticate using AUTH",
+  "extension": "Authentication",
+  "difficulty": "medium",
+  "file": "course/stages/124-ws7-authenticate-using-auth.md"
+ }
+]
