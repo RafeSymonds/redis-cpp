@@ -2,6 +2,7 @@
 
 #include <arpa/inet.h>
 #include <cstring>
+#include <functional>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <string>
@@ -46,6 +47,10 @@ class Socket {
     auto recvBytesNoWait(void *buffer, size_t size) -> ssize_t;
 
     auto recvBytes(void *buffer, size_t size) -> ssize_t;
+
+    auto recvByte() -> char;
+
+    auto recvUntil(std::function<bool(const std::string &)> donePredicate) -> std::string;
 
     auto sendBytes(const void *buffer, size_t size) -> int;
 

@@ -64,6 +64,24 @@ auto Socket::recvBytesNoWait(void *buffer, size_t size) -> ssize_t { return recv
 
 auto Socket::recvBytes(void *buffer, size_t size) -> ssize_t { return recv(fd, buffer, size, MSG_WAITALL); }
 
+auto Socket::recvByte() -> char {
+    char c;
+
+    recvBytes(&c, 1);
+
+    return c;
+}
+
+auto Socket::recvUntil(std::function<bool(const std::string &)> donePredicate) -> std::string {
+    std::string s;
+
+    while (!donePredicate(s)) {
+        s += recvByte();
+    }
+
+    return s;
+}
+
 auto Socket::sendBytes(const void *buffer, size_t size) -> int {
     const char *buf = static_cast<const char *>(buffer);
 
