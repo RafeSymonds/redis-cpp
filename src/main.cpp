@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include <mutex>
 #include <netdb.h>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -9,7 +10,28 @@
 #include <unistd.h>
 
 #include "net/socket_handle.hpp"
+#include "redis_command.hpp"
 #include "utils/string_utils.hpp"
+
+std::unordered_map<std::string, std::string> keyValueStore;
+std::mutex lock;
+
+auto updatedKeyValueStore(const std::string &key, const std::string &value) -> void {
+    std::lock_guard<std::mutex> guard(lock);
+    keyValueStore[key] = value;
+}
+auto getValue(const std::string &key) -> std::optional<std::string> {
+    std::lock_guard<std::mutex> guard(lock);
+    auto it = keyValueStore.find(key);
+
+    if (it == keyValueStore.end()) {
+        return {};
+    }
+
+    std::string value = it->second;
+
+    return value;
+}
 
 auto clientHandler(Socket &&client) {
     while (true) {
@@ -18,12 +40,38 @@ auto clientHandler(Socket &&client) {
 
         auto &command = commandData[0];
 
-        if (command == "PING") {
-            client.sendString("+PONG\r\n");
-        }
-        else if (command == "ECHO") {
-            auto &echoArg = commandData[1];
-            client.sendString(convertToRESPBulkString(echoArg));
+        switch (parseCommand(command)) {
+            case Command::PING:
+                client.sendString("+PONG\r\n");
+                break;
+            case Command::ECHO: {
+                auto &echoArg = commandData[1];
+                client.sendString(convertToRESPBulkString(echoArg));
+                break;
+            }
+            case Command::SET: {
+                auto &key = commandData[1];
+                auto &value = commandData[2];
+                updatedKeyValueStore(key, value);
+                client.sendString(convertToSimpleString("OK"));
+
+                break;
+            }
+            case Command::GET: {
+                auto &key = commandData[1];
+                auto value = getValue(key);
+
+                if (value.has_value()) {
+                    client.sendString(convertToRESPBulkString(*value));
+                }
+                else {
+                    client.sendString(convertToRESPBulkString(NULL_BULK_STRING));
+                }
+
+                break;
+            }
+            case Command::UNKNOWN:
+                throw "unknown command";
         }
     }
 }

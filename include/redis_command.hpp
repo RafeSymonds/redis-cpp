@@ -1,17 +1,12 @@
 #pragma once
 
 #include <string>
-#include <variant>
 
-struct PingCommand {};
+constexpr std::string PING_COMAMND = "PING";
+constexpr std::string ECHO_COMAMND = "ECHO";
+constexpr std::string GET_COMAMND = "GET";
+constexpr std::string SET_COMAMND = "SET";
 
-struct GetCommand {
-    std::string key;
-};
+enum class Command { PING, ECHO, GET, SET, UNKNOWN };
 
-struct SetCommand {
-    std::string key;
-    std::string value;
-};
-
-using RedisCommand = std::variant<PingCommand, GetCommand, SetCommand>;
+auto parseCommand(const std::string &s) -> Command;
