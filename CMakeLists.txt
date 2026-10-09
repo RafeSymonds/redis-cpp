@@ -12,3 +12,5 @@ find_package(Threads REQUIRED)
 add_executable(redis ${SOURCE_FILES})
 
 target_link_libraries(redis PRIVATE Threads::Threads)
+
+target_include_directories(redis PRIVATE include)
