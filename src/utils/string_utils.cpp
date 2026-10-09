@@ -1,8 +1,6 @@
 #include "utils/string_utils.hpp"
 #include "net/socket_handle.hpp"
 
-#include "vector"
-
 auto createSimpleString(const std::string &s) -> std::string { return '+' + s + "\r\n"; }
 
 auto endsWithCRLF(const std::string &s) -> bool { return s.ends_with("\r\n"); }
