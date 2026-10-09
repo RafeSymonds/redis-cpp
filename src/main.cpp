@@ -5,9 +5,33 @@
 #include <netdb.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <thread>
 #include <unistd.h>
 
 #include "net/socket_handle.hpp"
+
+auto clientHandler(Socket &&client) {
+    while (true) {
+        std::string buffer(100, '\0');
+
+        uint32_t total = 0;
+
+        while (true) {
+            client.recvBytes(buffer.data() + total, 1);
+
+            if (buffer.starts_with("*1\r\n$4\r\nPING\r\n")) {
+                break;
+            }
+
+            total += 1;
+        }
+
+        std::println("sending pong from request {}", buffer);
+        std::fflush(stdout);
+
+        client.sendString("+PONG\r\n");
+    }
+}
 
 int main(int argc, char **argv) {
     // Flush after every std::cout / std::cerr
@@ -61,29 +85,12 @@ int main(int argc, char **argv) {
     // close(server_fd);
     //
     auto server = Socket::createServer(port);
-    auto client = server.acceptClient();
-    std::cout << "Client connected\n";
 
     while (true) {
-
-        std::string buffer(100, '\0');
-
-        uint32_t total = 0;
-
-        while (true) {
-            client.recvBytes(buffer.data() + total, 1);
-
-            if (buffer.starts_with("*1\r\n$4\r\nPING\r\n")) {
-                break;
-            }
-
-            total += 1;
-        }
-
-        std::println("sending pong from request {}", buffer);
-        std::fflush(stdout);
-
-        client.sendString("+PONG\r\n");
+        auto client = server.acceptClient();
+        std::cout << "Client connected\n";
+        std::thread t(clientHandler, std::move(client));
+        t.detach();
     }
 
     server.close();
