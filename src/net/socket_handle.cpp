@@ -1,6 +1,7 @@
 #include "net/socket_handle.hpp"
+#include "net/network_utils.hpp"
 
-auto Socket::createServer(int port) -> Socket {
+auto Socket::createServer(uint32_t port) -> Socket {
     sockaddr_in addr{};
     make_server_sockaddr(&addr, port);
     int sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -25,7 +26,7 @@ auto Socket::createServer(int port) -> Socket {
     return Socket(sockfd);
 }
 
-static auto createClient(const char *hostname, int port) -> Socket {
+auto Socket::createClient(const char *hostname, uint32_t port) -> Socket {
     sockaddr_in addr{};
     make_client_sockaddr(&addr, hostname, port);
 

@@ -1,4 +1,4 @@
-#include "network_utils.h"
+#include "net/network_utils.hpp"
 
 #include <stdio.h>      // perror(), fprintf()
 #include <string.h>     // memcpy()

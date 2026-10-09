@@ -1,13 +1,12 @@
 #pragma once
 
+#include <arpa/inet.h>
 #include <cstring>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <string>
 #include <sys/socket.h>
 #include <unistd.h>
-
-#include "network_utils.hpp"
 
 #include <cstring>
 #include <netinet/in.h>
@@ -32,15 +31,15 @@ class Socket {
   private:
     int fd;
     in_addr_t ip;
-    int port;
+    uint32_t port;
 
   public:
     Socket(int fd) : fd(fd) {}
-    Socket(int fd, in_addr_t ip, int port) : fd(fd), ip(ip), port(port) {}
+    Socket(int fd, in_addr_t ip, uint32_t port) : fd(fd), ip(ip), port(port) {}
 
-    static auto createServer(int port) -> Socket;
+    static auto createServer(uint32_t port) -> Socket;
 
-    static auto createClient(const char *hostname, int port) -> Socket;
+    static auto createClient(const char *hostname, uint32_t port) -> Socket;
 
     auto acceptClient() -> Socket;
 
