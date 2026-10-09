@@ -66,3 +66,7 @@ auto parseRedisCommandFromNetwork(Socket &socket) -> std::vector<std::string> {
 
     throw "command did not match";
 }
+
+auto convertToRESPBulkString(const std::string &s) -> std::string {
+    return "$" + std::to_string(s.size()) + "\r\n" + s + "\r\n";
+}

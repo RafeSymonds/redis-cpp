@@ -9,46 +9,22 @@
 #include <unistd.h>
 
 #include "net/socket_handle.hpp"
+#include "utils/string_utils.hpp"
 
 auto clientHandler(Socket &&client) {
-    std::string buffer(100, '\0');
-    uint32_t total = 0;
     while (true) {
-        client.recvBytes(buffer.data() + total, 1);
 
-        if (buffer.starts_with("*1\r\n$4\r\nPING\r\n")) {
-            std::println("sending pong from request {}", buffer);
-            std::fflush(stdout);
+        auto commandData = parseRedisCommandFromNetwork(client);
 
+        auto &command = commandData[0];
+
+        if (command == "PING") {
             client.sendString("+PONG\r\n");
-            total = 0;
-            buffer = std::string(100, '\0');
-            continue;
         }
-
-        if (buffer.starts_with("*2\r\n$4\r\nECHO\r\n")) {
-
-            std::string arg(100, '\0');
-            uint32_t t = 0;
-            while (true) {
-                client.recvBytes(arg.data() + t, 1);
-                t += 1;
-
-                std::println("arg {}", arg);
-                std::fflush(stdout);
-
-                if (std::count(arg.begin(), arg.begin() + t, '\n') == 2) {
-                    client.sendBytes(arg.c_str(), t);
-                    break;
-                }
-            }
-
-            total = 0;
-            buffer = std::string(100, '\0');
-            continue;
+        else if (command == "ECHO") {
+            auto &echoArg = commandData[1];
+            client.sendString(convertToRESPBulkString(echoArg));
         }
-
-        total += 1;
     }
 }
 
