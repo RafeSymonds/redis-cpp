@@ -70,3 +70,13 @@ auto parseRedisCommandFromNetwork(Socket &socket) -> std::vector<std::string> {
 auto convertToRESPBulkString(const std::string &s) -> std::string {
     return "$" + std::to_string(s.size()) + "\r\n" + s + "\r\n";
 }
+
+auto convertToRESPArray(const std::vector<std::string> elements) -> std::string {
+    auto output = "*" + std::to_string(elements.size()) + "\r\n";
+
+    for (auto &ele : elements) {
+        output += convertToRESPBulkString(ele);
+    }
+
+    return output;
+}

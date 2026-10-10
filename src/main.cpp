@@ -3,6 +3,7 @@
 #include <cstring>
 #include <iostream>
 #include <netdb.h>
+#include <ranges>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <thread>
@@ -60,6 +61,27 @@ auto clientHandler(KVStore &kvStore, Socket &&client) {
                 else {
                     client.sendString(NULL_BULK_STRING);
                 }
+
+                break;
+            }
+            case Command::CONFIG: {
+
+                auto &type = commandData[1];
+
+                std::vector<std::string> output;
+
+                if (type == "GET") {
+                    for (auto &&setting : commandData | std::views::drop(2)) {
+                        if (setting == "dir") {
+                            output.push_back(kvStore.getDBFolderPath());
+                        }
+                        else if (setting == "dbfilename") {
+                            output.push_back(kvStore.getDBFilename());
+                        }
+                    }
+                }
+
+                client.sendString(convertToRESPArray(output));
 
                 break;
             }
