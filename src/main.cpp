@@ -9,29 +9,13 @@
 #include <thread>
 #include <unistd.h>
 
+#include "kv_store/kv_store.hpp"
 #include "net/socket_handle.hpp"
 #include "redis_command.hpp"
 #include "utils/string_utils.hpp"
+#include "utils/time_utils.hpp"
 
-std::unordered_map<std::string, std::string> keyValueStore;
-std::mutex lock;
-
-auto updatedKeyValueStore(const std::string &key, const std::string &value) -> void {
-    std::lock_guard<std::mutex> guard(lock);
-    keyValueStore[key] = value;
-}
-auto getValue(const std::string &key) -> std::optional<std::string> {
-    std::lock_guard<std::mutex> guard(lock);
-    auto it = keyValueStore.find(key);
-
-    if (it == keyValueStore.end()) {
-        return {};
-    }
-
-    std::string value = it->second;
-
-    return value;
-}
+KVStore kvStore;
 
 auto clientHandler(Socket &&client) {
     while (true) {
@@ -52,20 +36,30 @@ auto clientHandler(Socket &&client) {
             case Command::SET: {
                 auto &key = commandData[1];
                 auto &value = commandData[2];
-                updatedKeyValueStore(key, value);
-                client.sendString(convertToSimpleString("OK"));
 
+                auto expireTime = TimePoint::max();
+
+                if (commandData.size() >= 5) {
+                    auto &expireType = commandData[3];
+                    auto delta = std::stoll(commandData[4]);
+
+                    expireTime = Clock::now() + std::chrono::milliseconds(expireType == "EX" ? delta * 1000 : delta);
+                }
+
+                kvStore.updatedKeyValueStore(key, value, expireTime);
+
+                client.sendString(convertToSimpleString("OK"));
                 break;
             }
             case Command::GET: {
                 auto &key = commandData[1];
-                auto value = getValue(key);
+                auto value = kvStore.getValue(key);
 
                 if (value.has_value()) {
                     client.sendString(convertToRESPBulkString(*value));
                 }
                 else {
-                    client.sendString(convertToRESPBulkString(NULL_BULK_STRING));
+                    client.sendString(NULL_BULK_STRING);
                 }
 
                 break;
