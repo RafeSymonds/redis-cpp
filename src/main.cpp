@@ -73,9 +73,11 @@ auto clientHandler(KVStore &kvStore, Socket &&client) {
                 if (type == "GET") {
                     for (auto &&setting : commandData | std::views::drop(2)) {
                         if (setting == "dir") {
+                            output.push_back("dir");
                             output.push_back(kvStore.getDBFolderPath());
                         }
                         else if (setting == "dbfilename") {
+                            output.push_back("dbfilename");
                             output.push_back(kvStore.getDBFilename());
                         }
                     }

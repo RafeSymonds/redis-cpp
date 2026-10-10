@@ -13,5 +13,8 @@ auto parseCommand(const std::string &s) -> Command {
     if (s == "SET")
         return Command::SET;
 
+    if (s == "CONFIG")
+        return Command::CONFIG;
+
     return Command::UNKNOWN;
 }
