@@ -1,6 +1,7 @@
 {
   "dependencies": [
     "asio",
+    "cxxopts",
     "pthreads"
   ]
 }
