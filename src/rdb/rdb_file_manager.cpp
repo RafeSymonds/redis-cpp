@@ -69,5 +69,5 @@ auto RDBFileManager::readDBFile() -> KVStore {
         kvStore.updatedKeyValueStore(key, value, expireTime);
     }
 
-    return kvStore;
+    return std::move(kvStore);
 }
