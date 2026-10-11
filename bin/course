@@ -1,0 +1,199 @@
+#!/usr/bin/env python3
+"""Run a CodeCrafters challenge locally against its official tester, no membership.
+
+  bin/course list               every stage, with passed ones ticked
+  bin/course show [STAGE]       print a stage's instructions (default: next unpassed)
+  bin/course test [STAGE]       build, then run STAGE plus every stage already passed
+  bin/course test STAGE --only  run just that stage
+  bin/course reset STAGE        mark a stage as not passed
+
+STAGE is a number or a slug (e.g. jm1). Progress lives in course/progress.json,
+which is committed so it follows you between machines. Which challenge and
+which tester version this is comes from course/course.json.
+"""
+from __future__ import annotations
+
+import json
+import os
+import platform
+import shutil
+import subprocess
+import sys
+import tarfile
+import urllib.error
+import urllib.request
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+META = json.loads((ROOT / "course/course.json").read_text())
+STAGES = json.loads((ROOT / "course/stages.json").read_text())
+PROGRESS = ROOT / "course/progress.json"
+TESTER_DIR = ROOT / ".tester" / META["tester_version"]
+MIRROR_REPO = "lobs-ai/codecrafters"
+MIRROR_TAG = "testers"
+
+
+def passed() -> list[str]:
+    return json.loads(PROGRESS.read_text()) if PROGRESS.exists() else []
+
+
+def save(slugs: list[str]) -> None:
+    order = {s["slug"]: s["n"] for s in STAGES}
+    PROGRESS.write_text(json.dumps(sorted(set(slugs), key=order.__getitem__), indent=1) + "\n")
+
+
+def find(arg: str | None) -> dict:
+    if arg is None:
+        done = set(passed())
+        for s in STAGES:
+            if s["slug"] not in done:
+                return s
+        sys.exit("Every stage is passed.")
+    for s in STAGES:
+        if arg == s["slug"] or (arg.isdigit() and int(arg) == s["n"]):
+            return s
+    sys.exit(f"No stage {arg!r}. Use a number 1-{len(STAGES)} or a slug from `bin/course list`.")
+
+
+def fetch_tester(tgz: Path) -> None:
+    """Upstream release first, then the lobs-ai mirror (which also has darwin_arm64
+    builds for testers CodeCrafters only ships for Intel Macs)."""
+    os_name = {"Darwin": "darwin", "Linux": "linux"}[platform.system()]
+    arch = {"arm64": "arm64", "aarch64": "arm64", "x86_64": "amd64"}[platform.machine()]
+    v, repo = META["tester_version"], META["tester_repo"]
+    url = f"https://github.com/codecrafters-io/{repo}/releases/download/{v}/{v}_{os_name}_{arch}.tar.gz"
+    print(f"Downloading {repo} {v} ({os_name}/{arch})...", file=sys.stderr)
+    try:
+        with urllib.request.urlopen(url) as r, open(tgz, "wb") as f:
+            shutil.copyfileobj(r, f)
+        return
+    except urllib.error.HTTPError as e:
+        if e.code != 404:
+            raise
+    name = f"{repo}-{v}_{os_name}_{arch}.tar.gz"
+    print(f"No upstream build for {os_name}/{arch}; using {MIRROR_REPO} mirror.", file=sys.stderr)
+    subprocess.run(["gh", "release", "download", MIRROR_TAG, "-R", MIRROR_REPO, "-p", name,
+                    "-O", str(tgz), "--clobber"], check=True)
+
+
+def tester() -> Path:
+    exe = TESTER_DIR / "tester"
+    if exe.exists():
+        return exe
+    TESTER_DIR.mkdir(parents=True, exist_ok=True)
+    tgz = TESTER_DIR / "tester.tgz"
+    fetch_tester(tgz)
+    with tarfile.open(tgz) as t:
+        if hasattr(tarfile, "data_filter"):
+            t.extractall(TESTER_DIR, filter="data")
+        else:
+            t.extractall(TESTER_DIR)
+    tgz.unlink()
+    exe.chmod(0o755)
+    return exe
+
+
+def build_env() -> dict:
+    env = dict(os.environ)
+    brew = shutil.which("brew")
+    if brew and platform.system() == "Darwin":
+        prefix = subprocess.run([brew, "--prefix"], capture_output=True, text=True).stdout.strip()
+        env.setdefault("CMAKE_PREFIX_PATH", prefix)
+        ssl = Path(prefix) / "opt/openssl@3"
+        if ssl.exists():
+            env.setdefault("OPENSSL_ROOT_DIR", str(ssl))
+    return env
+
+
+def build(env: dict) -> None:
+    r = subprocess.run([str(ROOT / META["executable"])], cwd=ROOT, env=dict(env, CC_BUILD_ONLY="1"))
+    if r.returncode:
+        sys.exit("Build failed.")
+
+
+def shims() -> Path:
+    """Some testers hide a system binary from your program by `mv`-ing it (with sudo
+    when available): grep's tester moves grep, shell's moves pwd on Linux. That is
+    meant for CodeCrafters' throwaway containers. Locally, give them decoy copies
+    first on PATH plus a sudo that never escalates, so no real system file moves."""
+    d = ROOT / ".tester" / "shims"
+    shutil.rmtree(d, ignore_errors=True)
+    d.mkdir(parents=True)
+    sudo = d / "sudo"
+    sudo.write_text('#!/bin/sh\nexec "$@"\n')
+    sudo.chmod(0o755)
+    for name in META.get("path_decoys", []):
+        real = shutil.which(name)
+        if real:
+            shutil.copy(real, d / name)
+    return d
+
+
+def cmd_list(_args: list[str]) -> None:
+    done, ext = set(passed()), None
+    nxt = find(None)["slug"] if len(done) < len(STAGES) else None
+    print(META["name"])
+    for s in STAGES:
+        if s["extension"] != ext:
+            ext = s["extension"]
+            print(f"\n{ext}")
+        mark = "x" if s["slug"] in done else (">" if s["slug"] == nxt else " ")
+        print(f"  [{mark}] {s['n']:3d} {s['slug']}  {s['name']}  ({s['difficulty']})")
+    print(f"\n{len(done)}/{len(STAGES)} passed")
+
+
+def cmd_show(args: list[str]) -> None:
+    s = find(args[0] if args else None)
+    print(f"# Stage {s['n']} ({s['slug']}): {s['name']}  [{s['extension']}, {s['difficulty']}]\n")
+    print((ROOT / s["file"]).read_text())
+
+
+def cmd_test(args: list[str]) -> None:
+    only = "--only" in args
+    args = [a for a in args if a != "--only"]
+    target = find(args[0] if args else None)
+    done = set(passed())
+    run = [s for s in STAGES if s["slug"] == target["slug"] or (not only and s["slug"] in done)]
+    cases = [{"slug": s["slug"], "tester_log_prefix": f"stage-{s['n']}",
+              "title": f"Stage #{s['n']}: {s['name']}"} for s in run]
+    env = build_env()
+    for secret, source in META.get("secret_env", {}).items():
+        if secret not in env:
+            if source not in env:
+                sys.exit(f"This tester proxies to a real API: export {source}=... first.")
+            env[secret] = env[source]
+    exe = tester()
+    build(env)
+    env.update(CODECRAFTERS_REPOSITORY_DIR=str(ROOT),
+               CODECRAFTERS_SUBMISSION_DIR=str(ROOT),
+               CODECRAFTERS_TEST_CASES_JSON=json.dumps(cases),
+               CODECRAFTERS_SKIP_ANTI_CHEAT="true",
+               CC_SKIP_BUILD="1",
+               TESTER_DIR=str(TESTER_DIR),
+               PATH=f"{shims()}{os.pathsep}{os.environ.get('PATH', '')}")
+    print(f"Running {len(cases)} stage(s): target {target['n']} {target['slug']} ({target['name']})\n",
+          flush=True)
+    r = subprocess.run([str(exe)], cwd=ROOT, env=env)
+    if r.returncode == 0:
+        save([*done, target["slug"]])
+        left = [s for s in STAGES if s["slug"] not in set(passed())]
+        tail = f" Next: {left[0]['n']} {left[0]['slug']} ({left[0]['name']})." if left else ""
+        print(f"\nPassed stage {target['n']}.{tail}")
+    sys.exit(r.returncode)
+
+
+def cmd_reset(args: list[str]) -> None:
+    s = find(args[0] if args else None)
+    save([x for x in passed() if x != s["slug"]])
+    print(f"Stage {s['n']} marked not passed.")
+
+
+def main() -> None:
+    cmds = {"list": cmd_list, "show": cmd_show, "test": cmd_test, "reset": cmd_reset}
+    if len(sys.argv) < 2 or sys.argv[1] not in cmds:
+        sys.exit(__doc__)
+    cmds[sys.argv[1]](sys.argv[2:])
+
+
+if __name__ == "__main__":
+    main()
