@@ -13,11 +13,12 @@
 
 #include "kv_store/kv_store.hpp"
 #include "net/socket_handle.hpp"
+#include "redis/redis.hpp"
 #include "redis_command.hpp"
 #include "utils/string_utils.hpp"
 #include "utils/time_utils.hpp"
 
-auto clientHandler(KVStore &kvStore, Socket &&client) {
+auto clientHandler(Redis &redis, Socket &&client) {
     while (true) {
 
         auto commandData = parseRedisCommandFromNetwork(client);
@@ -46,14 +47,14 @@ auto clientHandler(KVStore &kvStore, Socket &&client) {
                     expireTime = Clock::now() + std::chrono::milliseconds(expireType == "EX" ? delta * 1000 : delta);
                 }
 
-                kvStore.updatedKeyValueStore(key, value, expireTime);
+                redis.kvStore.updatedKeyValueStore(key, value, expireTime);
 
                 client.sendString(convertToSimpleString("OK"));
                 break;
             }
             case Command::GET: {
                 auto &key = commandData[1];
-                auto value = kvStore.getValue(key);
+                auto value = redis.kvStore.getValue(key);
 
                 if (value.has_value()) {
                     client.sendString(convertToRESPBulkString(*value));
@@ -74,11 +75,11 @@ auto clientHandler(KVStore &kvStore, Socket &&client) {
                     for (auto &&setting : commandData | std::views::drop(2)) {
                         if (setting == "dir") {
                             output.push_back("dir");
-                            output.push_back(kvStore.getDBFolderPath());
+                            output.push_back(redis.fileManager.getDBFolderPath());
                         }
                         else if (setting == "dbfilename") {
                             output.push_back("dbfilename");
-                            output.push_back(kvStore.getDBFilename());
+                            output.push_back(redis.fileManager.getDBFilename());
                         }
                     }
                 }
@@ -93,7 +94,7 @@ auto clientHandler(KVStore &kvStore, Socket &&client) {
     }
 }
 
-auto createKVStore(cxxopts::ParseResult result) -> KVStore {
+auto createRedis(cxxopts::ParseResult result) -> Redis {
     if (result.contains("dir")) {
         auto dir = result["dir"].as<std::string>();
         auto dbfilename = result["dbfilename"].as<std::string>();
@@ -118,7 +119,7 @@ int main(int argc, char **argv) {
 
     auto result = options.parse(argc, argv);
 
-    auto kvStore = createKVStore(result);
+    auto redis = createRedis(result);
 
     constexpr uint32_t port = 6379;
     auto server = Socket::createServer(port);
@@ -126,7 +127,7 @@ int main(int argc, char **argv) {
     while (true) {
         auto client = server.acceptClient();
         std::cout << "Client connected\n";
-        std::thread t(clientHandler, std::ref(kvStore), std::move(client));
+        std::thread t(clientHandler, std::ref(redis), std::move(client));
         t.detach();
     }
 

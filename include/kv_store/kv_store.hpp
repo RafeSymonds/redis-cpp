@@ -16,17 +16,18 @@ class KVStore {
     std::unordered_map<std::string, Item> keyValueStore;
     std::mutex lock;
 
-    std::string dbFolderPath;
-    std::string dbFilename;
-
   public:
-    KVStore(const std::string &dbFolderPath, const std::string &dbFileName)
-        : dbFolderPath(dbFolderPath), dbFilename(dbFileName) {}
+    KVStore() = default;
+
+    KVStore(KVStore &&other) noexcept {
+        std::lock_guard guard(other.lock);
+        keyValueStore = std::move(other.keyValueStore);
+    }
+
+    KVStore(const KVStore &) = delete;
+    KVStore &operator=(const KVStore &) = delete;
 
     auto updatedKeyValueStore(const std::string &key, const std::string &value, TimePoint expireTime) -> void;
 
     auto getValue(const std::string &key) -> std::optional<std::string>;
-
-    auto getDBFolderPath() const -> std::string { return dbFolderPath; }
-    auto getDBFilename() const -> std::string { return dbFilename; }
 };
