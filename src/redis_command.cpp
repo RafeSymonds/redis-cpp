@@ -25,5 +25,9 @@ auto parseCommand(const std::string &s) -> Command {
         return Command::KEYS;
     }
 
+    if (s == "INFO") {
+        return Command::INFO;
+    }
+
     return Command::UNKNOWN;
 }
