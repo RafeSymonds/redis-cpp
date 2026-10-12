@@ -42,7 +42,6 @@ auto Redis::processCommand(const std::vector<std::string> &commandData, bool per
             kvStore.updatedKeyValueStore(key, value, expireTime);
 
             return convertToSimpleString("OK");
-            break;
         }
         case Command::GET: {
             auto &key = commandData[1];
@@ -51,11 +50,7 @@ auto Redis::processCommand(const std::vector<std::string> &commandData, bool per
             if (value.has_value()) {
                 return convertToRESPBulkString(*value);
             }
-            else {
-                return NULL_BULK_STRING;
-            }
-
-            break;
+            return NULL_BULK_STRING;
         }
         case Command::CONFIG: {
 
