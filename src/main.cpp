@@ -19,91 +19,105 @@
 #include "utils/time_utils.hpp"
 
 auto clientHandler(Redis &redis, Socket &&client) {
-    while (true) {
+    try {
 
-        auto commandData = parseRedisCommandFromNetwork(client);
+        while (true) {
 
-        auto &command = commandData[0];
+            auto commandData = parseRedisCommandFromNetwork(client);
 
-        switch (parseCommand(command)) {
-            case Command::PING:
-                client.sendString("+PONG\r\n");
-                break;
-            case Command::ECHO: {
-                auto &echoArg = commandData[1];
-                client.sendString(convertToRESPBulkString(echoArg));
-                break;
-            }
-            case Command::SET: {
-                auto &key = commandData[1];
-                auto &value = commandData[2];
+            auto &command = commandData[0];
 
-                auto expireTime = TimePoint::max();
-
-                if (commandData.size() >= 5) {
-                    auto &expireType = commandData[3];
-                    auto delta = std::stoll(commandData[4]);
-
-                    expireTime = Clock::now() + std::chrono::milliseconds(expireType == "EX" ? delta * 1000 : delta);
+            switch (parseCommand(command)) {
+                case Command::PING:
+                    client.sendString("+PONG\r\n");
+                    break;
+                case Command::ECHO: {
+                    auto &echoArg = commandData[1];
+                    client.sendString(convertToRESPBulkString(echoArg));
+                    break;
                 }
+                case Command::SET: {
+                    auto &key = commandData[1];
+                    auto &value = commandData[2];
 
-                redis.kvStore.updatedKeyValueStore(key, value, expireTime);
+                    auto expireTime = TimePoint::max();
 
-                client.sendString(convertToSimpleString("OK"));
-                break;
-            }
-            case Command::GET: {
-                auto &key = commandData[1];
-                auto value = redis.kvStore.getValue(key);
+                    if (commandData.size() >= 5) {
+                        auto &expireType = commandData[3];
+                        auto delta = std::stoll(commandData[4]);
 
-                if (value.has_value()) {
-                    client.sendString(convertToRESPBulkString(*value));
+                        expireTime =
+                            Clock::now() + std::chrono::milliseconds(expireType == "EX" ? delta * 1000 : delta);
+                    }
+
+                    redis.kvStore.updatedKeyValueStore(key, value, expireTime);
+
+                    client.sendString(convertToSimpleString("OK"));
+                    break;
                 }
-                else {
-                    client.sendString(NULL_BULK_STRING);
+                case Command::GET: {
+                    auto &key = commandData[1];
+                    auto value = redis.kvStore.getValue(key);
+
+                    if (value.has_value()) {
+                        client.sendString(convertToRESPBulkString(*value));
+                    }
+                    else {
+                        client.sendString(NULL_BULK_STRING);
+                    }
+
+                    break;
                 }
+                case Command::CONFIG: {
 
-                break;
-            }
-            case Command::CONFIG: {
+                    auto &type = commandData[1];
 
-                auto &type = commandData[1];
+                    std::vector<std::string> output;
 
-                std::vector<std::string> output;
-
-                if (type == "GET") {
-                    for (auto &&setting : commandData | std::views::drop(2)) {
-                        if (setting == "dir") {
-                            output.push_back("dir");
-                            output.push_back(redis.fileManager.getDBFolderPath());
-                        }
-                        else if (setting == "dbfilename") {
-                            output.push_back("dbfilename");
-                            output.push_back(redis.fileManager.getDBFilename());
+                    if (type == "GET") {
+                        for (auto &&setting : commandData | std::views::drop(2)) {
+                            if (setting == "dir") {
+                                output.push_back("dir");
+                                output.push_back(redis.fileManager.getDBFolderPath());
+                            }
+                            else if (setting == "dbfilename") {
+                                output.push_back("dbfilename");
+                                output.push_back(redis.fileManager.getDBFilename());
+                            }
                         }
                     }
+
+                    client.sendString(convertToRESPArray(output));
+                    break;
                 }
+                case Command::KEYS: {
 
-                client.sendString(convertToRESPArray(output));
+                    auto &pattern = commandData[1];
+                    auto values = redis.kvStore.getValues(pattern);
 
-                break;
+                    client.sendString(convertToRESPArray(values));
+
+                    break;
+                }
+                case Command::UNKNOWN:
+                    throw "unknown command";
             }
-            case Command::UNKNOWN:
-                throw "unknown command";
         }
+    } catch (const std::exception &e) {
+        std::println(std::cerr, "Exit with error {}", e.what());
+        std::cerr.flush();
     }
 }
 
-auto createRedis(cxxopts::ParseResult result) -> Redis {
+static auto createRedis(const cxxopts::ParseResult &result) -> Redis {
     if (result.contains("dir")) {
         auto dir = result["dir"].as<std::string>();
         auto dbfilename = result["dbfilename"].as<std::string>();
 
         return {dir, dbfilename};
     }
-    else {
-        return {"", ""};
-    }
+
+    return {"", ""};
 }
 
 int main(int argc, char **argv) {
@@ -119,19 +133,24 @@ int main(int argc, char **argv) {
 
     auto result = options.parse(argc, argv);
 
-    auto redis = createRedis(result);
+    try {
+        auto redis = createRedis(result);
 
-    constexpr uint32_t port = 6379;
-    auto server = Socket::createServer(port);
+        constexpr uint32_t port = 6379;
+        auto server = Socket::createServer(port);
 
-    while (true) {
-        auto client = server.acceptClient();
-        std::cout << "Client connected\n";
-        std::thread t(clientHandler, std::ref(redis), std::move(client));
-        t.detach();
+        while (true) {
+            auto client = server.acceptClient();
+            std::cout << "Client connected\n";
+            std::thread t(clientHandler, std::ref(redis), std::move(client));
+            t.detach();
+        }
+
+        server.close();
+    } catch (const std::exception &e) {
+        std::println(std::cerr, "Exit with error {}", e.what());
+        std::cerr.flush();
     }
-
-    server.close();
 
     return 0;
 }

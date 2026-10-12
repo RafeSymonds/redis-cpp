@@ -1,22 +1,31 @@
 #include <cassert>
 #include <fstream>
+#include <iostream>
+#include <print>
 
 #include "rdb/rdb.hpp"
 #include "rdb/rdb_file_manager.hpp"
 #include "utils/time_utils.hpp"
 
 auto RDBFileManager::readDBFile() -> KVStore {
-    std::ifstream file(dbFolderPath + dbFilename, std::ios::binary);
-    if (!file.is_open()) {
-        return KVStore{};
+    if (dbFilename == "") {
+        return {};
     }
 
-    std::string header(RDB::HEADER.size(), '\0');
+    std::ifstream file(dbFolderPath + "/" + dbFilename);
+    if (!file.is_open()) {
+        std::println("No DB file found.");
+        std::cout.flush();
+        return {};
+    }
+
+    std::string header;
 
     file >> header;
 
     if (header != "REDIS0011") {
-        throw "invalid file";
+        throw std::runtime_error(
+            std::format("invalid file since header is wrong {} with size={}", header, header.size()));
     }
 
     uint8_t byte = 0;
@@ -37,6 +46,9 @@ auto RDBFileManager::readDBFile() -> KVStore {
     file >> numKeys >> numExpires;
 
     KVStore kvStore;
+
+    std::println("number of keys reading from disk {}", numKeys);
+    std::cout.flush();
 
     while (numKeys-- > 0) {
         file.read(reinterpret_cast<char *>(&byte), 1);
@@ -59,7 +71,7 @@ auto RDBFileManager::readDBFile() -> KVStore {
         file.read(reinterpret_cast<char *>(&byte), 1);
 
         if (byte != 0) {
-            throw "unsupported type";
+            throw std::runtime_error("unsupported type");
         }
 
         std::string key;

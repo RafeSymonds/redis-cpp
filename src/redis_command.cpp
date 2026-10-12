@@ -1,20 +1,29 @@
 #include "redis_command.hpp"
 
 auto parseCommand(const std::string &s) -> Command {
-    if (s == "PING")
+    if (s == "PING") {
         return Command::PING;
+    }
 
-    if (s == "ECHO")
+    if (s == "ECHO") {
         return Command::ECHO;
+    }
 
-    if (s == "GET")
+    if (s == "GET") {
         return Command::GET;
+    }
 
-    if (s == "SET")
+    if (s == "SET") {
         return Command::SET;
+    }
 
-    if (s == "CONFIG")
+    if (s == "CONFIG") {
         return Command::CONFIG;
+    }
+
+    if (s == "KEYS") {
+        return Command::KEYS;
+    }
 
     return Command::UNKNOWN;
 }

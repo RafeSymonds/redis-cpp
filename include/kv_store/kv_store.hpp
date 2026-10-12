@@ -10,6 +10,8 @@
 struct Item {
     std::string value;
     TimePoint expireTime;
+
+    [[nodiscard]] auto IsExpired(TimePoint time) const -> bool { return expireTime < time; }
 };
 
 class KVStore {
@@ -30,4 +32,6 @@ class KVStore {
     auto updatedKeyValueStore(const std::string &key, const std::string &value, TimePoint expireTime) -> void;
 
     auto getValue(const std::string &key) -> std::optional<std::string>;
+
+    auto getValues(const std::string &pattern) -> std::vector<std::string>;
 };
