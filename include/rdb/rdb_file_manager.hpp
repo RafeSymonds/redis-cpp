@@ -1,18 +1,25 @@
+#include <filesystem>
 #include <string>
+#include <utility>
 
 #include "kv_store/kv_store.hpp"
 
+struct RDBConfig {
+    std::string dir;
+    std::string dbfilename;
+
+    RDBConfig() : dir(std::filesystem::current_path()) {}
+    RDBConfig(std::string dir, std::string dbfilename) : dir(std::move(dir)), dbfilename(std::move(dbfilename)) {}
+};
+
 class RDBFileManager {
 
-    std::string dbFolderPath;
-    std::string dbFilename;
+    RDBConfig config;
 
   public:
-    RDBFileManager(const std::string &dbFolderPath, const std::string &dbFilename)
-        : dbFolderPath(dbFolderPath), dbFilename(dbFilename) {}
+    explicit RDBFileManager(RDBConfig config) : config(std::move(config)) {}
 
     auto readDBFile() -> KVStore;
 
-    auto getDBFolderPath() const -> std::string { return dbFolderPath; }
-    auto getDBFilename() const -> std::string { return dbFilename; }
+    [[nodiscard]] auto getConfig() const -> const RDBConfig & { return config; }
 };

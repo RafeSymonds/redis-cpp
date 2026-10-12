@@ -77,12 +77,28 @@ auto clientHandler(Redis &redis, Socket &&client) {
                     if (type == "GET") {
                         for (auto &&setting : commandData | std::views::drop(2)) {
                             if (setting == "dir") {
-                                output.push_back("dir");
-                                output.push_back(redis.fileManager.getDBFolderPath());
+                                output.emplace_back("dir");
+                                output.push_back(redis.dbFileManager.getConfig().dir);
                             }
                             else if (setting == "dbfilename") {
-                                output.push_back("dbfilename");
-                                output.push_back(redis.fileManager.getDBFilename());
+                                output.emplace_back("dbfilename");
+                                output.push_back(redis.dbFileManager.getConfig().dbfilename);
+                            }
+                            else if (setting == "appendonly") {
+                                output.emplace_back("appendonly");
+                                output.push_back(redis.aofFileManager.getConfig().appendonlyString());
+                            }
+                            else if (setting == "appenddirname") {
+                                output.emplace_back("appenddirname");
+                                output.push_back(redis.aofFileManager.getConfig().appenddirname);
+                            }
+                            else if (setting == "appendfilename") {
+                                output.emplace_back("appendfilename");
+                                output.push_back(redis.aofFileManager.getConfig().appendfilename);
+                            }
+                            else if (setting == "appendfsync") {
+                                output.emplace_back("appendfsync");
+                                output.push_back(redis.aofFileManager.getConfig().appendfsync);
                             }
                         }
                     }
@@ -109,15 +125,29 @@ auto clientHandler(Redis &redis, Socket &&client) {
     }
 }
 
-static auto createRedis(const cxxopts::ParseResult &result) -> Redis {
-    if (result.contains("dir")) {
-        auto dir = result["dir"].as<std::string>();
-        auto dbfilename = result["dbfilename"].as<std::string>();
+static auto parseConfig(const cxxopts::ParseResult &result) -> RedisConfig {
+    RedisConfig config;
 
-        return {dir, dbfilename};
+    if (result.contains("dir")) {
+        config.rdb.dir = result["dir"].as<std::string>();
+    }
+    if (result.contains("dbfilename")) {
+        config.rdb.dbfilename = result["dbfilename"].as<std::string>();
+    }
+    if (result.contains("appendonly")) {
+        config.aof.appendonly = result["appendonly"].as<std::string>() == "yes";
+    }
+    if (result.contains("appenddirname")) {
+        config.aof.appenddirname = result["appenddirname"].as<std::string>();
+    }
+    if (result.contains("appendfilename")) {
+        config.aof.appendfilename = result["appendfilename"].as<std::string>();
+    }
+    if (result.contains("appendfsync")) {
+        config.aof.appendfsync = result["appendfsync"].as<std::string>();
     }
 
-    return {"", ""};
+    return config;
 }
 
 int main(int argc, char **argv) {
@@ -131,11 +161,15 @@ int main(int argc, char **argv) {
     addOption("dir", "the path to the directory where the RDB file is stored (example: /tmp/redis-data)",
               cxxopts::value<std::string>());
     addOption("dbfilename", "the name of the RDB file (example: rdbfile)", cxxopts::value<std::string>());
+    addOption("appendonly", "enable the append-only file (yes/no)", cxxopts::value<std::string>());
+    addOption("appenddirname", "the directory where AOF files are stored", cxxopts::value<std::string>());
+    addOption("appendfilename", "the base name of the AOF file", cxxopts::value<std::string>());
+    addOption("appendfsync", "AOF fsync policy (always/everysec/no)", cxxopts::value<std::string>());
 
     auto result = options.parse(argc, argv);
 
     try {
-        auto redis = createRedis(result);
+        Redis redis(parseConfig(result));
 
         constexpr uint32_t port = 6379;
         auto server = Socket::createServer(port);

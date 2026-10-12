@@ -87,11 +87,11 @@ auto readString(std::ifstream &file) -> std::string {
 } // namespace
 
 auto RDBFileManager::readDBFile() -> KVStore {
-    if (dbFilename == "") {
+    if (config.dbfilename.empty()) {
         return {};
     }
 
-    std::ifstream file(dbFolderPath + "/" + dbFilename, std::ios::binary);
+    std::ifstream file(config.dir + "/" + config.dbfilename, std::ios::binary);
     if (!file.is_open()) {
         std::println("No DB file found.");
         std::cout.flush();
