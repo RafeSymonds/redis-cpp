@@ -93,3 +93,5 @@ auto convertToRESPBulkString(const std::string &s) -> std::string;
 auto convertToRESPArray(const std::vector<std::string> elements) -> std::string;
 
 constexpr std::string NULL_BULK_STRING = "$-1\r\n";
+
+auto split(const std::string &str, char delim) -> std::vector<std::string>;

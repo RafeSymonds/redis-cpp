@@ -98,7 +98,9 @@ auto Redis::processCommand(const std::vector<std::string> &commandData, bool per
         }
         case Command::INFO: {
 
-            return convertToRESPBulkString("# Replication\nrole:master");
+            std::string result = std::format("# Replication\nrole:{}", master ? "master" : "slave");
+
+            return convertToRESPBulkString(result);
         }
         case Command::UNKNOWN:
             throw "unknown command";

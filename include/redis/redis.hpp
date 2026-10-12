@@ -13,6 +13,9 @@ struct RedisConfig {
     RDBConfig rdb;
     AOFConfig aof;
     uint32_t port = DEFAULT_PORT;
+
+    std::optional<std::string> masterHostname;
+    std::optional<uint32_t> masterPort;
 };
 
 class Redis {
@@ -25,10 +28,13 @@ class Redis {
     KVStore kvStore;
 
     uint32_t port;
+    std::optional<std::string> masterHostname;
+    std::optional<uint32_t> masterPort;
 
     explicit Redis(const RedisConfig &config)
         : dbFileManager(config.dir, config.rdb), aofFileManager(config.dir, config.aof),
-          kvStore(dbFileManager.readDBFile()), port(config.port) {
+          kvStore(dbFileManager.readDBFile()), port(config.port), masterHostname(config.masterHostname),
+          masterPort(config.masterPort) {
         setup();
     }
 

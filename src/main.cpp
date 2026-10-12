@@ -8,6 +8,7 @@
 #include "cxxopts.hpp"
 
 #include "redis/redis.hpp"
+#include "utils/string_utils.hpp"
 
 static auto parseConfig(const cxxopts::ParseResult &result) -> RedisConfig {
     RedisConfig config;
@@ -33,6 +34,11 @@ static auto parseConfig(const cxxopts::ParseResult &result) -> RedisConfig {
     if (result.contains("port")) {
         config.port = result["port"].as<uint32_t>();
     }
+    if (result.contains("replicaof")) {
+        auto info = result["replicaof"].as<std::string>();
+
+        auto result = split(info, ' ');
+    }
 
     return config;
 }
@@ -53,6 +59,7 @@ int main(int argc, char **argv) {
     addOption("appendfilename", "the base name of the AOF file", cxxopts::value<std::string>());
     addOption("appendfsync", "AOF fsync policy (always/everysec/no)", cxxopts::value<std::string>());
     addOption("port", "passes the port number to the Redis server", cxxopts::value<uint32_t>());
+    addOption("replicaof", "instance should be replica", cxxopts::value<std::string>());
 
     auto result = options.parse(argc, argv);
 
