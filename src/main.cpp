@@ -78,7 +78,7 @@ auto clientHandler(Redis &redis, Socket &&client) {
                         for (auto &&setting : commandData | std::views::drop(2)) {
                             if (setting == "dir") {
                                 output.emplace_back("dir");
-                                output.push_back(redis.dbFileManager.getConfig().dir);
+                                output.push_back(redis.dbFileManager.getDir());
                             }
                             else if (setting == "dbfilename") {
                                 output.emplace_back("dbfilename");
@@ -129,7 +129,7 @@ static auto parseConfig(const cxxopts::ParseResult &result) -> RedisConfig {
     RedisConfig config;
 
     if (result.contains("dir")) {
-        config.rdb.dir = result["dir"].as<std::string>();
+        config.dir = result["dir"].as<std::string>();
     }
     if (result.contains("dbfilename")) {
         config.rdb.dbfilename = result["dbfilename"].as<std::string>();

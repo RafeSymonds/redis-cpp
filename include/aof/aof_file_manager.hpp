@@ -17,11 +17,16 @@ struct AOFConfig {
 };
 
 class AOFFileManager {
-
+    std::string dir;
     AOFConfig config;
 
+    auto setup() -> void;
+
+    [[nodiscard]] auto dirPath() const -> std::string { return dir + "/" + config.appenddirname; }
+    [[nodiscard]] auto fullFilePath() const -> std::string { return dirPath() + "/" + config.appendfilename; }
+
   public:
-    explicit AOFFileManager(AOFConfig config) : config(std::move(config)) {}
+    AOFFileManager(std::string dir, AOFConfig config) : dir(std::move(dir)), config(std::move(config)) { setup(); }
 
     [[nodiscard]] auto getConfig() const -> const AOFConfig & { return config; }
 };
