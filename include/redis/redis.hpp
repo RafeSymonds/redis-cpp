@@ -12,6 +12,9 @@ struct RedisConfig {
 };
 
 class Redis {
+
+    auto setup() -> void;
+
   public:
     RDBFileManager dbFileManager;
     AOFFileManager aofFileManager;
@@ -19,5 +22,9 @@ class Redis {
 
     explicit Redis(const RedisConfig &config)
         : dbFileManager(config.dir, config.rdb), aofFileManager(config.dir, config.aof),
-          kvStore(dbFileManager.readDBFile()) {}
+          kvStore(dbFileManager.readDBFile()) {
+        setup();
+    }
+
+    auto processCommand(const std::vector<std::string> &commandData, bool persistCommand = true) -> std::string;
 };

@@ -3,7 +3,6 @@
 #include <cstring>
 #include <iostream>
 #include <netdb.h>
-#include <ranges>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <thread>
@@ -11,114 +10,15 @@
 
 #include "cxxopts.hpp"
 
-#include "kv_store/kv_store.hpp"
 #include "net/socket_handle.hpp"
 #include "redis/redis.hpp"
-#include "redis_command.hpp"
 #include "utils/string_utils.hpp"
-#include "utils/time_utils.hpp"
 
 auto clientHandler(Redis &redis, Socket &&client) {
     try {
-
         while (true) {
-
-            auto commandData = parseRedisCommandFromNetwork(client);
-
-            auto &command = commandData[0];
-
-            switch (parseCommand(command)) {
-                case Command::PING:
-                    client.sendString("+PONG\r\n");
-                    break;
-                case Command::ECHO: {
-                    auto &echoArg = commandData[1];
-                    client.sendString(convertToRESPBulkString(echoArg));
-                    break;
-                }
-                case Command::SET: {
-                    redis.aofFileManager.persistCommand(convertToRESPArray(commandData));
-
-                    auto &key = commandData[1];
-                    auto &value = commandData[2];
-
-                    auto expireTime = TimePoint::max();
-
-                    if (commandData.size() >= 5) {
-                        auto &expireType = commandData[3];
-                        auto delta = std::stoll(commandData[4]);
-
-                        expireTime =
-                            Clock::now() + std::chrono::milliseconds(expireType == "EX" ? delta * 1000 : delta);
-                    }
-
-                    redis.kvStore.updatedKeyValueStore(key, value, expireTime);
-
-                    client.sendString(convertToSimpleString("OK"));
-                    break;
-                }
-                case Command::GET: {
-                    auto &key = commandData[1];
-                    auto value = redis.kvStore.getValue(key);
-
-                    if (value.has_value()) {
-                        client.sendString(convertToRESPBulkString(*value));
-                    }
-                    else {
-                        client.sendString(NULL_BULK_STRING);
-                    }
-
-                    break;
-                }
-                case Command::CONFIG: {
-
-                    auto &type = commandData[1];
-
-                    std::vector<std::string> output;
-
-                    if (type == "GET") {
-                        for (auto &&setting : commandData | std::views::drop(2)) {
-                            if (setting == "dir") {
-                                output.emplace_back("dir");
-                                output.push_back(redis.dbFileManager.getDir());
-                            }
-                            else if (setting == "dbfilename") {
-                                output.emplace_back("dbfilename");
-                                output.push_back(redis.dbFileManager.getConfig().dbfilename);
-                            }
-                            else if (setting == "appendonly") {
-                                output.emplace_back("appendonly");
-                                output.push_back(redis.aofFileManager.getConfig().appendonlyString());
-                            }
-                            else if (setting == "appenddirname") {
-                                output.emplace_back("appenddirname");
-                                output.push_back(redis.aofFileManager.getConfig().appenddirname);
-                            }
-                            else if (setting == "appendfilename") {
-                                output.emplace_back("appendfilename");
-                                output.push_back(redis.aofFileManager.getConfig().appendfilename);
-                            }
-                            else if (setting == "appendfsync") {
-                                output.emplace_back("appendfsync");
-                                output.push_back(toString(redis.aofFileManager.getConfig().appendfsync));
-                            }
-                        }
-                    }
-
-                    client.sendString(convertToRESPArray(output));
-                    break;
-                }
-                case Command::KEYS: {
-                    auto &pattern = commandData[1];
-                    auto values = redis.kvStore.getValues(pattern);
-
-                    client.sendString(convertToRESPArray(values));
-
-                    break;
-                }
-                case Command::UNKNOWN:
-                    throw "unknown command";
-            }
+            auto commandData = parseRedisCommand(client);
+            client.sendString(redis.processCommand(commandData));
         }
     } catch (const std::exception &e) {
         std::println(std::cerr, "Exit with error {}", e.what());

@@ -1,9 +1,11 @@
 #include <cstdint>
 #include <format>
 #include <fstream>
+#include <functional>
 #include <stdexcept>
 #include <string>
 #include <utility>
+#include <vector>
 
 enum class AppendFSync { ALWAYS, EVERYSEC, NO };
 
@@ -57,8 +59,6 @@ class AOFFileManager {
 
     uint32_t fileIncrement = 1;
 
-    auto setup() -> void;
-
     std::optional<std::ofstream> fileHandle;
 
     [[nodiscard]] auto fileIncrementName() const -> std::string { return std::format(".{}.incr.aof", fileIncrement); }
@@ -71,10 +71,13 @@ class AOFFileManager {
     [[nodiscard]] auto manifestFileName() const -> std::string { return config.appendfilename + ".manifest"; }
     [[nodiscard]] auto manifestFullFilePath() const -> std::string { return dirPath() + "/" + manifestFileName(); }
 
+    [[nodiscard]] auto readManifestFileName() const -> std::string;
+
   public:
-    AOFFileManager(std::string dir, AOFConfig config) : dir(std::move(dir)), config(std::move(config)) { setup(); }
+    AOFFileManager(std::string dir, AOFConfig config) : dir(std::move(dir)), config(std::move(config)) {}
 
     [[nodiscard]] auto getConfig() const -> const AOFConfig & { return config; }
 
     auto persistCommand(const std::string &command) -> void;
+    auto setup(std::function<void(const std::vector<std::string> &)> func) -> void;
 };
