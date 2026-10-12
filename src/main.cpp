@@ -27,8 +27,6 @@ auto clientHandler(Redis &redis, Socket &&client) {
 
             auto &command = commandData[0];
 
-            redis.aofFileManager.persistCommand(convertToRESPArray(commandData));
-
             switch (parseCommand(command)) {
                 case Command::PING:
                     client.sendString("+PONG\r\n");
@@ -39,6 +37,8 @@ auto clientHandler(Redis &redis, Socket &&client) {
                     break;
                 }
                 case Command::SET: {
+                    redis.aofFileManager.persistCommand(convertToRESPArray(commandData));
+
                     auto &key = commandData[1];
                     auto &value = commandData[2];
 
@@ -109,7 +109,6 @@ auto clientHandler(Redis &redis, Socket &&client) {
                     break;
                 }
                 case Command::KEYS: {
-
                     auto &pattern = commandData[1];
                     auto values = redis.kvStore.getValues(pattern);
 
