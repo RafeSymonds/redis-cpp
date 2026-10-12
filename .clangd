@@ -1,0 +1,90 @@
+# C/C++
+If:
+  PathMatch: [.*\.cc, .*\.cpp, .*\.cxx, .*\.hpp, .*\.inl, .*\.c, .*\.h]
+
+Diagnostics:
+  ClangTidy:
+    Add:
+      - bugprone*
+      - modernize*
+      - performance*
+      - readability*
+    Remove:
+      - readability-identifier-length
+      - readability-named-parameter
+      - readability-qualified-auto
+      - bugprone-easily-swappable-parameters
+      - modernize-use-trailing-return-type
+    CheckOptions:
+      readability-identifier-naming.VariableCase: camelBack
+  # clangd 14
+  # UnusedIncludes: Strict
+
+Completion:
+  AllScopes: No
+
+
+# clangd 14
+InlayHints:
+   Enabled: Yes
+   ParameterNames: Yes
+   DeducedTypes: Yes
+
+Hover:
+  ShowAKA: Yes
+---
+# C
+If:
+  PathMatch: [.*\.c]
+
+CompileFlags:
+  Add: [--std=c23, -Wall, -Wextra, -Wpedantic]
+---
+# C++
+If:
+  PathMatch: [.*\.cc, .*\.cpp, .*\.cxx, .*\.hpp, .*\.inl, .*\.h]
+
+CompileFlags:
+  Add: [--std=c++23, -Wall, -Wextra, -Wpedantic]
+
+Diagnostics:
+  ClangTidy:
+    Add:
+      - cppcoreguidelines*
+      - google-build-explicit-make-pair
+      - google-default-arguments
+      - google-readability-casting
+      - misc-*
+    CheckOptions:
+      misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic: true
+    Remove:
+      - cppcoreguidelines-pro-bounds-array-to-pointer-decay
+---
+# C source
+If:
+  PathMatch: [.*\.c]
+
+CompileFlags:
+  Add: [-xc]
+---
+# C header
+If:
+  PathMatch: []
+
+CompileFlags:
+  Add: [-xc-header]
+---
+# C++ source
+If:
+  PathMatch: [.*\.cc, .*\.cpp, .*\.cxx]
+
+CompileFlags:
+  Add: [-xc++]
+---
+# C++ header
+If:
+  PathMatch: [.*\.hpp, .*\.inl, .*\.h]
+
+CompileFlags:
+  Add: [-xc++-header]
+
