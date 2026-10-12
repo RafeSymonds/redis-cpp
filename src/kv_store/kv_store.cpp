@@ -39,7 +39,7 @@ auto KVStore::getValues(const std::string &pattern) -> std::vector<std::string> 
             continue;
         }
 
-        values.push_back(item.value);
+        values.push_back(key);
     }
 
     return values;
