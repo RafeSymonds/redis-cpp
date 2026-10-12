@@ -15,4 +15,12 @@ auto AOFFileManager::setup() -> void {
     if (!file) {
         throw std::runtime_error("failed to create file");
     }
+
+    std::ofstream manifestFile(manifestFullFilePath());
+
+    if (!manifestFile) {
+        throw std::runtime_error("failed to create file");
+    }
+
+    manifestFile << "file " << config.appendfilename << ".1.incr.aof seq 1 type i";
 }
