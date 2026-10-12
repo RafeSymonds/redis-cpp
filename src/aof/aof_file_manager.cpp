@@ -23,4 +23,22 @@ auto AOFFileManager::setup() -> void {
     }
 
     manifestFile << "file " << config.appendfilename << ".1.incr.aof seq 1 type i";
+
+    fileHandle = std::move(file);
+}
+
+auto AOFFileManager::persistCommand(const std::string &command) -> void {
+    if (!config.appendonly) {
+        return;
+    }
+
+    *fileHandle << command;
+
+    switch (config.appendfsync) {
+        case AppendFSync::ALWAYS:
+            fileHandle->flush();
+        case AppendFSync::EVERYSEC:
+        case AppendFSync::NO:
+            return;
+    }
 }

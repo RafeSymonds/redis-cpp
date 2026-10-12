@@ -27,6 +27,8 @@ auto clientHandler(Redis &redis, Socket &&client) {
 
             auto &command = commandData[0];
 
+            redis.aofFileManager.persistCommand(convertToRESPArray(commandData));
+
             switch (parseCommand(command)) {
                 case Command::PING:
                     client.sendString("+PONG\r\n");
@@ -98,7 +100,7 @@ auto clientHandler(Redis &redis, Socket &&client) {
                             }
                             else if (setting == "appendfsync") {
                                 output.emplace_back("appendfsync");
-                                output.push_back(redis.aofFileManager.getConfig().appendfsync);
+                                output.push_back(toString(redis.aofFileManager.getConfig().appendfsync));
                             }
                         }
                     }
@@ -144,7 +146,7 @@ static auto parseConfig(const cxxopts::ParseResult &result) -> RedisConfig {
         config.aof.appendfilename = result["appendfilename"].as<std::string>();
     }
     if (result.contains("appendfsync")) {
-        config.aof.appendfsync = result["appendfsync"].as<std::string>();
+        config.aof.appendfsync = parseAppendFSync(result["appendfsync"].as<std::string>());
     }
 
     return config;
