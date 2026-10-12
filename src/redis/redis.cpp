@@ -1,3 +1,4 @@
+#include <iostream>
 #include <ranges>
 
 #include "redis/redis.hpp"
@@ -97,5 +98,36 @@ auto Redis::processCommand(const std::vector<std::string> &commandData, bool per
         }
         case Command::UNKNOWN:
             throw "unknown command";
+    }
+}
+
+auto Redis::clientHandler(Socket client) -> void {
+    try {
+        while (true) {
+            auto commandData = parseRedisCommand(client);
+            client.sendString(processCommand(commandData));
+        }
+    } catch (const std::exception &e) {
+        std::println(std::cerr, "Exit with error {}", e.what());
+        std::cerr.flush();
+    }
+}
+
+auto Redis::run() -> void {
+    try {
+        auto server = Socket::createServer(port);
+
+        while (true) {
+            auto client = server.acceptClient();
+            std::cout << "Client connected\n";
+            std::thread t([this](Socket client) { clientHandler(client); }, client);
+            t.detach();
+        }
+
+        server.close();
+
+    } catch (const std::exception &e) {
+        std::println(std::cerr, "Exit with error {}", e.what());
+        std::cerr.flush();
     }
 }

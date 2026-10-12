@@ -8,7 +8,7 @@
 #include <utility>
 #include <vector>
 
-enum class AppendFSync { ALWAYS, EVERYSEC, NO };
+enum class AppendFSync : uint8_t { ALWAYS, EVERYSEC, NO };
 
 inline auto parseAppendFSync(const std::string &s) -> AppendFSync {
     if (s == "always") {
