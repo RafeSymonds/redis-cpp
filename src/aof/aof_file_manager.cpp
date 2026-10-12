@@ -7,25 +7,31 @@
 #include <aof/aof_file_manager.hpp>
 #include <utils/string_utils.hpp>
 
-auto AOFFileManager::setup(std::function<void(const std::vector<std::string> &)> func) -> void {
+auto AOFFileManager::readCommands() const -> std::generator<std::vector<std::string>> {
+    if (!config.appendonly || !std::filesystem::exists(manifestFullFilePath())) {
+        co_return;
+    }
+
+    auto filePath = dirPath() + "/" + readManifestFileName();
+
+    std::println("replaying append only file {}", filePath);
+    std::cout.flush();
+
+    std::ifstream file(filePath);
+    StreamReader reader(file);
+
+    while (!reader.atEnd()) {
+        co_yield parseRedisCommand(reader);
+    }
+}
+
+auto AOFFileManager::open() -> void {
     if (!config.appendonly) {
         return;
     }
 
     if (std::filesystem::exists(manifestFullFilePath())) {
-        auto filePath = dirPath() + "/" + readManifestFileName();
-
-        std::println("replaying append only file {}", filePath);
-        std::cout.flush();
-
-        std::ifstream file(filePath);
-        StreamReader reader(file);
-
-        while (!reader.atEnd()) {
-            func(parseRedisCommand(reader));
-        }
-
-        fileHandle.emplace(filePath, std::ios::app);
+        fileHandle.emplace(dirPath() + "/" + readManifestFileName(), std::ios::app);
         return;
     }
 

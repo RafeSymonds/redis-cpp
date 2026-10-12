@@ -1,7 +1,8 @@
 #include <cstdint>
 #include <format>
 #include <fstream>
-#include <functional>
+#include <generator>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -79,5 +80,6 @@ class AOFFileManager {
     [[nodiscard]] auto getConfig() const -> const AOFConfig & { return config; }
 
     auto persistCommand(const std::string &command) -> void;
-    auto setup(std::function<void(const std::vector<std::string> &)> func) -> void;
+    [[nodiscard]] auto readCommands() const -> std::generator<std::vector<std::string>>;
+    auto open() -> void;
 };

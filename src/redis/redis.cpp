@@ -5,7 +5,11 @@
 #include <redis_command.hpp>
 
 auto Redis::setup() -> void {
-    aofFileManager.setup([this](auto &commandData) { processCommand(commandData, false); });
+    for (auto &&commandData : aofFileManager.readCommands()) {
+        processCommand(commandData, false);
+    }
+
+    aofFileManager.open();
 }
 
 auto Redis::processCommand(const std::vector<std::string> &commandData, bool persistCommand) -> std::string {
