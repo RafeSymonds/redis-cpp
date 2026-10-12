@@ -127,9 +127,10 @@ int main(int argc, char **argv) {
 
     cxxopts::Options options("test", "A brief description");
 
-    options.add_options()("dir", "the path to the directory where the RDB file is stored (example: /tmp/redis-data)",
-                          cxxopts::value<std::string>())("dbfilename", "the name of the RDB file (example: rdbfile)",
-                                                         cxxopts::value<std::string>());
+    auto addOption = options.add_options();
+    addOption("dir", "the path to the directory where the RDB file is stored (example: /tmp/redis-data)",
+              cxxopts::value<std::string>());
+    addOption("dbfilename", "the name of the RDB file (example: rdbfile)", cxxopts::value<std::string>());
 
     auto result = options.parse(argc, argv);
 
