@@ -1,6 +1,7 @@
 #include <iostream>
 #include <print>
 #include <ranges>
+#include <thread>
 
 #include "redis/redis.hpp"
 #include "utils/string_utils.hpp"
@@ -128,8 +129,10 @@ auto Redis::run() -> void {
 
         while (true) {
             auto client = server.acceptClient();
+
             std::cout << "Client connected\n";
             std::cout.flush();
+
             std::thread t([this](Socket client) { clientHandler(client); }, client);
             t.detach();
         }
