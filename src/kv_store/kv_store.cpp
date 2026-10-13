@@ -44,3 +44,8 @@ auto KVStore::getValues(const std::string &pattern) -> std::vector<std::string> 
 
     return values;
 }
+auto KVStore::getItems() -> std::unordered_map<std::string, Item> {
+    std::lock_guard<std::mutex> guard(lock);
+
+    return keyValueStore;
+}

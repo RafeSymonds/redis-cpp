@@ -45,11 +45,7 @@ If:
   PathMatch: [.*\.cc, .*\.cpp, .*\.cxx, .*\.hpp, .*\.inl, .*\.h]
 
 CompileFlags:
-  Add: [--std=c++23, -Wall, -Wextra, -Wpedantic,
-        # Use GCC's libstdc++ (has <generator>) instead of Apple libc++
-        -nostdinc++,
-        -isystem, /opt/homebrew/opt/gcc/include/c++/16,
-        -isystem, /opt/homebrew/opt/gcc/include/c++/16/aarch64-apple-darwin25]
+  Add: [--std=c++23, -Wall, -Wextra, -Wpedantic]
 
 Diagnostics:
   ClangTidy:

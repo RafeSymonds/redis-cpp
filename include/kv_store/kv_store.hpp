@@ -34,4 +34,6 @@ class KVStore {
     auto getValue(const std::string &key) -> std::optional<std::string>;
 
     auto getValues(const std::string &pattern) -> std::vector<std::string>;
+
+    auto getItems() -> std::unordered_map<std::string, Item>;
 };

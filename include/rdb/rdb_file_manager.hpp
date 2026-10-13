@@ -19,4 +19,6 @@ class RDBFileManager {
 
     [[nodiscard]] auto getDir() const -> const std::string & { return dir; }
     [[nodiscard]] auto getConfig() const -> const RDBConfig & { return config; }
+
+    [[nodiscard]] static auto writeDBFile(KVStore &kvStore) -> std::string;
 };

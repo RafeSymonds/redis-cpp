@@ -25,12 +25,12 @@ auto Socket::createServer(uint32_t port) -> Socket {
         throw std::runtime_error("failed to listen");
     }
 
-    return Socket(sockfd);
+    return {sockfd};
 }
 
-auto Socket::createClient(const char *hostname, uint32_t port) -> Socket {
+auto Socket::createClient(const std::string &hostname, uint32_t port) -> Socket {
     sockaddr_in addr{};
-    make_client_sockaddr(&addr, hostname, port);
+    make_client_sockaddr(&addr, hostname.c_str(), port);
 
     int sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (sockfd < 0) {

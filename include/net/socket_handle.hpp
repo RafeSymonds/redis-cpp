@@ -9,11 +9,6 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-#include <cstring>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <unistd.h>
-
 namespace {
 auto ipToString(in_addr_t ip) -> std::string {
     in_addr addr{};
@@ -31,8 +26,8 @@ auto ipToString(in_addr_t ip) -> std::string {
 class Socket {
   private:
     int fd;
-    in_addr_t ip;
-    uint32_t port;
+    in_addr_t ip{};
+    uint32_t port{};
 
   public:
     Socket(int fd) : fd(fd) {}
@@ -40,7 +35,7 @@ class Socket {
 
     static auto createServer(uint32_t port) -> Socket;
 
-    static auto createClient(const char *hostname, uint32_t port) -> Socket;
+    static auto createClient(const std::string &hostname, uint32_t port) -> Socket;
 
     auto acceptClient() -> Socket;
 
@@ -62,11 +57,11 @@ class Socket {
 
     auto close() -> int;
 
-    auto getFd() const -> int { return fd; }
+    [[nodiscard]] auto getFd() const -> int { return fd; }
 
-    auto activitySet(const fd_set &readfds) const -> bool { return FD_ISSET(fd, &readfds); }
+    [[nodiscard]] auto activitySet(const fd_set &readfds) const -> bool { return FD_ISSET(fd, &readfds); }
 
-    auto getIp() const -> in_addr_t { return ip; }
-    auto getIpStr() const -> std::string { return ipToString(ip); }
-    auto getPort() const -> uint16_t { return port; }
+    [[nodiscard]] auto getIp() const -> in_addr_t { return ip; }
+    [[nodiscard]] auto getIpStr() const -> std::string { return ipToString(ip); }
+    [[nodiscard]] auto getPort() const -> uint16_t { return port; }
 };
