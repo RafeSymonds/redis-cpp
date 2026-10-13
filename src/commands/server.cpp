@@ -2,6 +2,7 @@
 #include <ranges>
 
 #include "commands/registry.hpp"
+#include "replication/master_role.hpp"
 #include "resp/encode.hpp"
 
 namespace {
@@ -30,7 +31,16 @@ auto config(CommandContext &ctx) -> Reply {
 auto keys(CommandContext &ctx) -> Reply { return resp::array(ctx.store.keys(ctx.args[1])); }
 
 auto info(CommandContext &ctx) -> Reply {
-    return resp::bulkString(std::format("# Replication\nrole:{}", isMaster(ctx.role) ? "master" : "slave"));
+    auto *master = std::get_if<MasterRole>(&ctx.role);
+
+    std::string output = std::format("# Replication\nrole:{}\n", master != nullptr ? "master" : "slave");
+
+    if (master != nullptr) {
+        output += std::format("master_repl_offset:{}\n", master->getReplicationOffset());
+        output += std::format("master_replid:{}\n", master->getReplicationId());
+    }
+
+    return resp::bulkString(output);
 }
 
 } // namespace

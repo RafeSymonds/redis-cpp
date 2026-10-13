@@ -11,5 +11,7 @@ class ReplicaRole {
   public:
     explicit ReplicaRole(ReplicaOf master) : master(std::move(master)) {}
 
+    auto connect(uint16_t port) const -> void;
+
     [[nodiscard]] auto getMaster() const -> const ReplicaOf & { return master; }
 };

@@ -65,6 +65,10 @@ auto Redis::run() -> void {
         std::println("Starting server with port {}", config.port);
         std::cout.flush();
 
+        if (auto *replica = std::get_if<ReplicaRole>(&role)) {
+            std::thread([replica, port = config.port]() { replica->connect(port); }).detach();
+        }
+
         auto server = Socket::createServer(config.port);
 
         while (true) {
