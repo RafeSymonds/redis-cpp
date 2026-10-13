@@ -34,7 +34,7 @@ auto Redis::loadState() -> void {
     aof.open();
 }
 
-auto Redis::execute(const std::vector<std::string> &args, Origin origin) -> std::string {
+auto Redis::execute(const std::vector<std::string> &args, Origin origin, Session *session) -> Reply {
     const auto *command = registry.find(args[0]);
 
     if (command == nullptr) {
@@ -43,7 +43,7 @@ auto Redis::execute(const std::vector<std::string> &args, Origin origin) -> std:
 
     std::lock_guard guard(lock);
 
-    CommandContext ctx{.args = args, .store = store, .config = config, .role = role};
+    CommandContext ctx{.args = args, .store = store, .config = config, .role = role, .session = session};
     auto reply = command->handler(ctx);
 
     if (command->write && origin == Origin::CLIENT) {

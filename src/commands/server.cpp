@@ -6,11 +6,11 @@
 
 namespace {
 
-auto ping(CommandContext & /*ctx*/) -> std::string { return resp::simpleString("PONG"); }
+auto ping(CommandContext & /*ctx*/) -> Reply { return resp::simpleString("PONG"); }
 
-auto echo(CommandContext &ctx) -> std::string { return resp::bulkString(ctx.args[1]); }
+auto echo(CommandContext &ctx) -> Reply { return resp::bulkString(ctx.args[1]); }
 
-auto config(CommandContext &ctx) -> std::string {
+auto config(CommandContext &ctx) -> Reply {
     auto &type = ctx.args[1];
 
     std::vector<std::string> output;
@@ -27,9 +27,9 @@ auto config(CommandContext &ctx) -> std::string {
     return resp::array(output);
 }
 
-auto keys(CommandContext &ctx) -> std::string { return resp::array(ctx.store.keys(ctx.args[1])); }
+auto keys(CommandContext &ctx) -> Reply { return resp::array(ctx.store.keys(ctx.args[1])); }
 
-auto info(CommandContext &ctx) -> std::string {
+auto info(CommandContext &ctx) -> Reply {
     return resp::bulkString(std::format("# Replication\nrole:{}", isMaster(ctx.role) ? "master" : "slave"));
 }
 

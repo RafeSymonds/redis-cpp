@@ -7,9 +7,12 @@
 
 auto Session::run() -> void {
     try {
-        while (true) {
+        while (!detached) {
             auto args = resp::parse(socket);
-            socket.sendString(redis.execute(args, Origin::CLIENT));
+
+            if (auto reply = redis.execute(args, Origin::CLIENT, this)) {
+                socket.sendString(*reply);
+            }
         }
     } catch (const std::exception &e) {
         std::println(std::cerr, "Exit with error {}", e.what());

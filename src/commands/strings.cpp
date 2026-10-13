@@ -3,7 +3,7 @@
 
 namespace {
 
-auto set(CommandContext &ctx) -> std::string {
+auto set(CommandContext &ctx) -> Reply {
     auto &key = ctx.args[1];
     auto &value = ctx.args[2];
 
@@ -21,7 +21,7 @@ auto set(CommandContext &ctx) -> std::string {
     return std::string(resp::OK);
 }
 
-auto get(CommandContext &ctx) -> std::string {
+auto get(CommandContext &ctx) -> Reply {
     auto value = ctx.store.get(ctx.args[1]);
 
     if (value.has_value()) {

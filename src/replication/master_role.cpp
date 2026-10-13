@@ -1,7 +1,9 @@
+#include <format>
 #include <iostream>
 #include <print>
 #include <random>
 
+#include "rdb/rdb.hpp"
 #include "replication/master_role.hpp"
 
 namespace {
@@ -26,6 +28,14 @@ auto generateReplicationId() -> std::string {
 } // namespace
 
 MasterRole::MasterRole() : replicationId(generateReplicationId()) {}
+
+auto MasterRole::addReplica(Socket replica, const KVStore &store) -> void {
+    // Bulk-string framing without the trailing CRLF.
+    auto snapshot = rdb::serialize(store);
+    replica.sendString(std::format("${}\r\n{}", snapshot.size(), snapshot));
+
+    replicas.push_back(std::move(replica));
+}
 
 auto MasterRole::propagate(const std::string &command) -> void {
     for (auto &replica : replicas) {

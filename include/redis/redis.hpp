@@ -33,8 +33,8 @@ class Redis {
   public:
     explicit Redis(RedisConfig config);
 
-    // Runs one command and returns its RESP reply.
-    auto execute(const std::vector<std::string> &args, Origin origin) -> std::string;
+    // Runs one command and returns its RESP reply, if any. session is nullptr for AOF replay.
+    auto execute(const std::vector<std::string> &args, Origin origin, Session *session = nullptr) -> Reply;
 
     // Loads state, then accepts clients until the process exits.
     auto run() -> void;
