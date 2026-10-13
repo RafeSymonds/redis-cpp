@@ -1,10 +1,13 @@
+#pragma once
+
 #include <filesystem>
 #include <string>
 
 #include "aof/aof_file_manager.hpp"
 #include "kv_store/kv_store.hpp"
+#include "net/socket_handle.hpp"
 #include "rdb/rdb_file_manager.hpp"
-#include <net/socket_handle.hpp>
+#include "replication/replica_manager.hpp"
 
 constexpr uint32_t DEFAULT_PORT = 6379;
 
@@ -31,6 +34,8 @@ class Redis {
     RDBFileManager dbFileManager;
     AOFFileManager aofFileManager;
     KVStore kvStore;
+
+    std::optional<ReplicaManager> replicaManager;
 
     uint32_t port;
     std::optional<std::string> masterHostname;

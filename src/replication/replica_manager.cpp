@@ -22,6 +22,7 @@ auto ReplicaManager::getReplicaAck(Socket &replica) -> uint64_t {
 
     return std::stoull(result[2]);
 }
+
 auto ReplicaManager::sendDB(Socket &replica, KVStore &kvStore) -> void {
     replica.sendString(RDBFileManager::writeDBFile(kvStore));
 }

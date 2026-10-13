@@ -104,6 +104,13 @@ auto Redis::processCommand(const std::vector<std::string> &commandData, bool per
 
             return convertToRESPBulkString(result);
         }
+        case Command::REPLCONF: {
+            return OK_SIMPLE_STRING;
+        }
+        case Command::PSYNC: {
+            auto result = convertToSimpleString(std::format("FULLRESYNC {} 0", replicaManager->getReplicationId()));
+            return result;
+        }
         case Command::UNKNOWN:
             throw std::runtime_error("unknown command");
     }

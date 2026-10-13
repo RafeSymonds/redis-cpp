@@ -29,5 +29,13 @@ auto parseCommand(const std::string &s) -> Command {
         return Command::INFO;
     }
 
+    if (s == "REPLCONF") {
+        return Command::REPLCONF;
+    }
+
+    if (s == "PSYNC") {
+        return Command::PSYNC;
+    }
+
     return Command::UNKNOWN;
 }
