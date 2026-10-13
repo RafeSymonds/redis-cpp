@@ -39,7 +39,7 @@ template <RESPReader Reader> auto parseRedisCommand(Reader &reader) -> std::vect
                     auto command = parseRedisCommand(reader);
 
                     if (command.size() != 1) {
-                        throw "unexpected command";
+                        throw std::runtime_error("unexpected command");
                     }
                     output.push_back(std::move(command[0]));
                 }
@@ -61,7 +61,7 @@ template <RESPReader Reader> auto parseRedisCommand(Reader &reader) -> std::vect
             reader.recvBytes(junk, 2);
 
             if (n != length) {
-                throw "did not receive what we expected";
+                throw std::runtime_error("did not receive what we expected");
             }
             return {std::move(buffer)};
         }
@@ -79,7 +79,7 @@ template <RESPReader Reader> auto parseRedisCommand(Reader &reader) -> std::vect
             }
     }
 
-    throw "command did not match";
+    throw std::runtime_error("command did not match");
 }
 
 inline auto parseRedisCommand(const std::string &s) -> std::vector<std::string> {

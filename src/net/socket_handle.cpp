@@ -1,5 +1,7 @@
-#include "net/socket_handle.hpp"
+#include <stdexcept>
+
 #include "net/network_utils.hpp"
+#include "net/socket_handle.hpp"
 
 auto Socket::createServer(uint32_t port) -> Socket {
     sockaddr_in addr{};
@@ -7,20 +9,20 @@ auto Socket::createServer(uint32_t port) -> Socket {
     int sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
     if (sockfd < 0) {
-        throw "socket is invalid";
+        throw std::runtime_error("socket is invalid");
     }
 
     int opt = 1;
     if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
-        throw "failed to set socket.";
+        throw std::runtime_error("failed to set socket.");
     }
 
     if (bind(sockfd, (sockaddr *)&addr, sizeof(addr)) < 0) {
-        throw "failed to bind";
+        throw std::runtime_error("failed to bind");
     }
 
     if (listen(sockfd, 1024) < 0) {
-        throw "failed to listen";
+        throw std::runtime_error("failed to listen");
     }
 
     return Socket(sockfd);
@@ -32,16 +34,16 @@ auto Socket::createClient(const char *hostname, uint32_t port) -> Socket {
 
     int sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (sockfd < 0) {
-        throw "socket is invalid";
+        throw std::runtime_error("socket is invalid");
     }
 
     int opt = 1;
     if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
-        throw "failed to set socket.";
+        throw std::runtime_error("failed to set socket.");
     }
 
     if (connect(sockfd, (sockaddr *)&addr, sizeof addr) < 0) {
-        throw "failed to connect socket";
+        throw std::runtime_error("failed to connect socket");
     }
 
     return Socket(sockfd, addr.sin_addr.s_addr, ntohs(addr.sin_port));
@@ -54,7 +56,7 @@ auto Socket::acceptClient() -> Socket {
     int clientFd = accept(fd, reinterpret_cast<sockaddr *>(&clientAddr), &clientLen);
 
     if (clientFd < 0) {
-        throw "failed to accept client";
+        throw std::runtime_error("failed to accept client");
     }
 
     return Socket(clientFd, clientAddr.sin_addr.s_addr, ntohs(clientAddr.sin_port));

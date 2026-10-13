@@ -1,4 +1,5 @@
 #include <iostream>
+#include <print>
 #include <ranges>
 
 #include "redis/redis.hpp"
@@ -98,12 +99,12 @@ auto Redis::processCommand(const std::vector<std::string> &commandData, bool per
         }
         case Command::INFO: {
 
-            std::string result = std::format("# Replication\nrole:{}", master ? "master" : "slave");
+            std::string result = std::format("# Replication\nrole:{}", IsMaster() ? "master" : "slave");
 
             return convertToRESPBulkString(result);
         }
         case Command::UNKNOWN:
-            throw "unknown command";
+            throw std::runtime_error("unknown command");
     }
 }
 
@@ -121,11 +122,14 @@ auto Redis::clientHandler(Socket client) -> void {
 
 auto Redis::run() -> void {
     try {
+        std::println("Starting server with port {}", port);
+        std::cout.flush();
         auto server = Socket::createServer(port);
 
         while (true) {
             auto client = server.acceptClient();
             std::cout << "Client connected\n";
+            std::cout.flush();
             std::thread t([this](Socket client) { clientHandler(client); }, client);
             t.detach();
         }

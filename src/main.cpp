@@ -38,6 +38,14 @@ static auto parseConfig(const cxxopts::ParseResult &result) -> RedisConfig {
         auto info = result["replicaof"].as<std::string>();
 
         auto result = split(info, ' ');
+
+        if (result.size() != 2) {
+            throw std::runtime_error(
+                std::format("not the correct number of inputs for repliace master. Input was {}", info));
+        }
+
+        config.masterHostname = result[0];
+        config.masterPort = std::stoull(result[1]);
     }
 
     return config;

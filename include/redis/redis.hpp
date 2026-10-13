@@ -19,8 +19,13 @@ struct RedisConfig {
 };
 
 class Redis {
-
     auto setup() -> void;
+
+    auto processCommand(const std::vector<std::string> &commandData, bool persistCommand = true) -> std::string;
+
+    auto clientHandler(Socket client) -> void;
+
+    auto IsMaster() const -> bool { return !masterHostname.has_value(); }
 
   public:
     RDBFileManager dbFileManager;
@@ -37,10 +42,6 @@ class Redis {
           masterPort(config.masterPort) {
         setup();
     }
-
-    auto processCommand(const std::vector<std::string> &commandData, bool persistCommand = true) -> std::string;
-
-    auto clientHandler(Socket client) -> void;
 
     auto run() -> void;
 };
