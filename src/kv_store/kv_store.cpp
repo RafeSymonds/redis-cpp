@@ -3,14 +3,11 @@
 
 #include "kv_store/kv_store.hpp"
 
-auto KVStore::updatedKeyValueStore(const std::string &key, const std::string &value, TimePoint expireTime) -> void {
-    std::lock_guard<std::mutex> guard(lock);
-
+auto KVStore::set(const std::string &key, const std::string &value, TimePoint expireTime) -> void {
     keyValueStore[key] = {value, expireTime};
 }
-auto KVStore::getValue(const std::string &key) -> std::optional<std::string> {
-    std::lock_guard<std::mutex> guard(lock);
 
+auto KVStore::get(const std::string &key) -> std::optional<std::string> {
     auto it = keyValueStore.find(key);
 
     if (it == keyValueStore.end()) {
@@ -25,7 +22,8 @@ auto KVStore::getValue(const std::string &key) -> std::optional<std::string> {
 
     return it->second.value;
 }
-auto KVStore::getValues(const std::string &pattern) -> std::vector<std::string> {
+
+auto KVStore::keys(const std::string &pattern) const -> std::vector<std::string> {
 
     auto currentTime = Clock::now();
 
@@ -43,9 +41,4 @@ auto KVStore::getValues(const std::string &pattern) -> std::vector<std::string> 
     }
 
     return values;
-}
-auto KVStore::getItems() -> std::unordered_map<std::string, Item> {
-    std::lock_guard<std::mutex> guard(lock);
-
-    return keyValueStore;
 }

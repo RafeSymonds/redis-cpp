@@ -4,10 +4,11 @@
 #include <print>
 #include <stdexcept>
 
-#include <aof/aof_file_manager.hpp>
-#include <utils/string_utils.hpp>
+#include "aof/aof.hpp"
+#include "resp/parser.hpp"
+#include "resp/stream_reader.hpp"
 
-auto AOFFileManager::readCommands() const -> std::generator<std::vector<std::string>> {
+auto AOF::replay() const -> std::generator<std::vector<std::string>> {
     if (!config.appendonly || !std::filesystem::exists(manifestFullFilePath())) {
         co_return;
     }
@@ -21,11 +22,11 @@ auto AOFFileManager::readCommands() const -> std::generator<std::vector<std::str
     StreamReader reader(file);
 
     while (!reader.atEnd()) {
-        co_yield parseRedisCommand(reader);
+        co_yield resp::parse(reader);
     }
 }
 
-auto AOFFileManager::open() -> void {
+auto AOF::open() -> void {
     if (!config.appendonly) {
         return;
     }
@@ -53,7 +54,7 @@ auto AOFFileManager::open() -> void {
     fileHandle = std::move(file);
 }
 
-auto AOFFileManager::readManifestFileName() const -> std::string {
+auto AOF::readManifestFileName() const -> std::string {
     std::ifstream manifest(manifestFullFilePath());
     std::string keyword;
     std::string filename;
@@ -65,7 +66,7 @@ auto AOFFileManager::readManifestFileName() const -> std::string {
     return filename;
 }
 
-auto AOFFileManager::persistCommand(const std::string &command) -> void {
+auto AOF::append(const std::string &command) -> void {
     if (!config.appendonly) {
         return;
     }

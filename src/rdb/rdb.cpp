@@ -6,8 +6,10 @@
 #include <stdexcept>
 
 #include "rdb/rdb.hpp"
-#include "rdb/rdb_file_manager.hpp"
+#include "rdb/rdb_format.hpp"
 #include "utils/time_utils.hpp"
+
+namespace rdb {
 
 namespace {
 
@@ -44,14 +46,14 @@ struct Length {
 
 auto readLength(std::ifstream &file) -> Length {
     auto first = readByte(file);
-    std::uint32_t low = first & RDB::LENGTH_VALUE_MASK;
+    std::uint32_t low = first & LENGTH_VALUE_MASK;
 
-    switch (first & RDB::LENGTH_TYPE_MASK) {
-        case RDB::LENGTH_6_BIT:
+    switch (first & LENGTH_TYPE_MASK) {
+        case LENGTH_6_BIT:
             return {.value = low, .isSpecial = false};
-        case RDB::LENGTH_14_BIT:
+        case LENGTH_14_BIT:
             return {.value = (low << 8) | readByte(file), .isSpecial = false};
-        case RDB::LENGTH_32_BIT: {
+        case LENGTH_32_BIT: {
             // 32-bit lengths are big-endian
             auto bytes = readBytes(file, 4);
             std::uint32_t value = 0;
@@ -73,11 +75,11 @@ auto readString(std::ifstream &file) -> std::string {
     }
 
     switch (value) {
-        case RDB::STRING_INT8:
+        case STRING_INT8:
             return std::to_string(static_cast<std::int8_t>(readLittleEndian(file, 1)));
-        case RDB::STRING_INT16:
+        case STRING_INT16:
             return std::to_string(static_cast<std::int16_t>(readLittleEndian(file, 2)));
-        case RDB::STRING_INT32:
+        case STRING_INT32:
             return std::to_string(static_cast<std::int32_t>(readLittleEndian(file, 4)));
         default:
             throw std::runtime_error(std::format("unsupported RDB string encoding {}", value));
@@ -92,15 +94,15 @@ auto writeLittleEndian(std::string &output, std::uint64_t value, std::size_t siz
 
 auto writeLength(std::string &output, std::uint32_t length) -> void {
     if (length < (1U << 6)) {
-        output.push_back(static_cast<char>(RDB::LENGTH_6_BIT | length));
+        output.push_back(static_cast<char>(LENGTH_6_BIT | length));
     }
     else if (length < (1U << 14)) {
-        output.push_back(static_cast<char>(RDB::LENGTH_14_BIT | (length >> 8)));
+        output.push_back(static_cast<char>(LENGTH_14_BIT | (length >> 8)));
         output.push_back(static_cast<char>(length & 0xFF));
     }
     else {
         // 32-bit lengths are big-endian
-        output.push_back(static_cast<char>(RDB::LENGTH_32_BIT));
+        output.push_back(static_cast<char>(LENGTH_32_BIT));
         for (int shift = 24; shift >= 0; shift -= 8) {
             output.push_back(static_cast<char>((length >> shift) & 0xFF));
         }
@@ -114,73 +116,68 @@ auto writeString(std::string &output, std::string_view s) -> void {
 
 } // namespace
 
-auto RDBFileManager::readDBFile() -> KVStore {
-    if (config.dbfilename.empty()) {
-        return {};
-    }
-
-    std::ifstream file(dir + "/" + config.dbfilename, std::ios::binary);
+auto load(const std::string &path, KVStore &store) -> void {
+    std::ifstream file(path, std::ios::binary);
     if (!file.is_open()) {
         std::println("No DB file found.");
         std::cout.flush();
-        return {};
+        return;
     }
 
-    auto header = readBytes(file, RDB::HEADER.size());
+    auto header = readBytes(file, HEADER.size());
 
-    if (header != RDB::HEADER) {
+    if (header != HEADER) {
         throw std::runtime_error(std::format("invalid RDB header {}", header));
     }
 
-    KVStore kvStore;
     auto expireTime = TimePoint::max();
 
     while (true) {
         auto opcode = readByte(file);
 
         switch (opcode) {
-            case RDB::METADATA:
+            case METADATA:
                 readString(file); // name
                 readString(file); // value
                 break;
-            case RDB::DATABASE:
+            case DATABASE:
                 readLength(file); // database index
                 break;
-            case RDB::HASH_TABLE_SIZE:
+            case HASH_TABLE_SIZE:
                 readLength(file); // key count
                 readLength(file); // expiring key count
                 break;
-            case RDB::EXPIRE_SECONDS:
-                expireTime = TimePoint(std::chrono::seconds(readLittleEndian(file, RDB::EXPIRE_SECONDS_SIZE)));
+            case EXPIRE_SECONDS:
+                expireTime = TimePoint(std::chrono::seconds(readLittleEndian(file, EXPIRE_SECONDS_SIZE)));
                 break;
-            case RDB::EXPIRE_MS:
-                expireTime = TimePoint(std::chrono::milliseconds(readLittleEndian(file, RDB::EXPIRE_MS_SIZE)));
+            case EXPIRE_MS:
+                expireTime = TimePoint(std::chrono::milliseconds(readLittleEndian(file, EXPIRE_MS_SIZE)));
                 break;
-            case RDB::STRING: {
+            case STRING: {
                 auto key = readString(file);
                 auto value = readString(file);
-                kvStore.updatedKeyValueStore(key, value, expireTime);
+                store.set(key, value, expireTime);
                 expireTime = TimePoint::max();
                 break;
             }
-            case RDB::END_OF_FILE:
-                return kvStore;
+            case END_OF_FILE:
+                return;
             default:
                 throw std::runtime_error(std::format("unsupported RDB opcode 0x{:02X}", opcode));
         }
     }
 }
 
-auto RDBFileManager::writeDBFile(KVStore &kvStore) -> std::string {
-    std::string output(RDB::HEADER);
+auto serialize(const KVStore &store) -> std::string {
+    std::string output(HEADER);
 
     // metadata
-    output.push_back(static_cast<char>(RDB::METADATA));
+    output.push_back(static_cast<char>(METADATA));
     writeString(output, "redis-ver");
     writeString(output, "7.2.0");
 
     auto currentTime = Clock::now();
-    auto items = kvStore.getItems();
+    auto items = store.items();
     std::erase_if(items, [&](const auto &entry) { return entry.second.IsExpired(currentTime); });
 
     std::uint32_t expiringKeys = 0;
@@ -191,28 +188,30 @@ auto RDBFileManager::writeDBFile(KVStore &kvStore) -> std::string {
     }
 
     // database 0
-    output.push_back(static_cast<char>(RDB::DATABASE));
+    output.push_back(static_cast<char>(DATABASE));
     writeLength(output, 0);
-    output.push_back(static_cast<char>(RDB::HASH_TABLE_SIZE));
+    output.push_back(static_cast<char>(HASH_TABLE_SIZE));
     writeLength(output, static_cast<std::uint32_t>(items.size()));
     writeLength(output, expiringKeys);
 
     for (const auto &[key, item] : items) {
         if (item.expireTime != TimePoint::max()) {
             auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(item.expireTime.time_since_epoch());
-            output.push_back(static_cast<char>(RDB::EXPIRE_MS));
-            writeLittleEndian(output, static_cast<std::uint64_t>(ms.count()), RDB::EXPIRE_MS_SIZE);
+            output.push_back(static_cast<char>(EXPIRE_MS));
+            writeLittleEndian(output, static_cast<std::uint64_t>(ms.count()), EXPIRE_MS_SIZE);
         }
 
-        output.push_back(static_cast<char>(RDB::STRING));
+        output.push_back(static_cast<char>(STRING));
         writeString(output, key);
         writeString(output, item.value);
     }
 
-    output.push_back(static_cast<char>(RDB::END_OF_FILE));
+    output.push_back(static_cast<char>(END_OF_FILE));
 
     // zero checksum tells readers to skip verification
-    output.append(RDB::CHECKSUM_SIZE, '\0');
+    output.append(CHECKSUM_SIZE, '\0');
 
     return output;
 }
+
+} // namespace rdb

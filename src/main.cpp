@@ -1,9 +1,6 @@
-#include <arpa/inet.h>
+#include <format>
 #include <iostream>
-#include <netdb.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
+#include <stdexcept>
 
 #include "cxxopts.hpp"
 
@@ -32,20 +29,19 @@ static auto parseConfig(const cxxopts::ParseResult &result) -> RedisConfig {
         config.aof.appendfsync = parseAppendFSync(result["appendfsync"].as<std::string>());
     }
     if (result.contains("port")) {
-        config.port = result["port"].as<uint32_t>();
+        config.port = result["port"].as<uint16_t>();
     }
     if (result.contains("replicaof")) {
         auto info = result["replicaof"].as<std::string>();
 
-        auto result = split(info, ' ');
+        auto parts = split(info, ' ');
 
-        if (result.size() != 2) {
+        if (parts.size() != 2) {
             throw std::runtime_error(
                 std::format("not the correct number of inputs for repliace master. Input was {}", info));
         }
 
-        config.masterHostname = result[0];
-        config.masterPort = std::stoull(result[1]);
+        config.replicaof = ReplicaOf{.hostname = parts[0], .port = static_cast<uint16_t>(std::stoul(parts[1]))};
     }
 
     return config;
@@ -66,7 +62,7 @@ int main(int argc, char **argv) {
     addOption("appenddirname", "the directory where AOF files are stored", cxxopts::value<std::string>());
     addOption("appendfilename", "the base name of the AOF file", cxxopts::value<std::string>());
     addOption("appendfsync", "AOF fsync policy (always/everysec/no)", cxxopts::value<std::string>());
-    addOption("port", "passes the port number to the Redis server", cxxopts::value<uint32_t>());
+    addOption("port", "passes the port number to the Redis server", cxxopts::value<uint16_t>());
     addOption("replicaof", "instance should be replica", cxxopts::value<std::string>());
 
     auto result = options.parse(argc, argv);

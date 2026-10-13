@@ -1,41 +1,35 @@
 #pragma once
 
-#include <arpa/inet.h>
-#include <cstring>
+#include <cstdint>
 #include <functional>
-#include <netdb.h>
 #include <netinet/in.h>
 #include <string>
-#include <sys/socket.h>
-#include <unistd.h>
+#include <string_view>
+#include <sys/select.h>
+#include <sys/types.h>
 
-namespace {
-auto ipToString(in_addr_t ip) -> std::string {
-    in_addr addr{};
-    addr.s_addr = ip;
-
-    char buffer[INET_ADDRSTRLEN];
-
-    inet_ntop(AF_INET, &addr, buffer, sizeof(buffer));
-
-    return buffer;
-}
-
-} // namespace
-
+// Owns a socket file descriptor. Move-only; the destructor closes the fd.
 class Socket {
   private:
-    int fd;
+    int fd = -1;
     in_addr_t ip{};
-    uint32_t port{};
+    uint16_t port{};
 
   public:
-    Socket(int fd) : fd(fd) {}
-    Socket(int fd, in_addr_t ip, uint32_t port) : fd(fd), ip(ip), port(port) {}
+    explicit Socket(int fd) : fd(fd) {}
+    Socket(int fd, in_addr_t ip, uint16_t port) : fd(fd), ip(ip), port(port) {}
 
-    static auto createServer(uint32_t port) -> Socket;
+    Socket(Socket &&other) noexcept;
+    auto operator=(Socket &&other) noexcept -> Socket &;
 
-    static auto createClient(const std::string &hostname, uint32_t port) -> Socket;
+    Socket(const Socket &) = delete;
+    auto operator=(const Socket &) -> Socket & = delete;
+
+    ~Socket();
+
+    static auto createServer(uint16_t port) -> Socket;
+
+    static auto createClient(const std::string &hostname, uint16_t port) -> Socket;
 
     auto acceptClient() -> Socket;
 
@@ -43,6 +37,7 @@ class Socket {
 
     auto recvBytes(void *buffer, size_t size) -> ssize_t;
 
+    // Throws when the peer closed the connection or recv failed.
     auto recvByte() -> char;
 
     auto recvUntil(std::function<bool(const std::string &)> donePredicate) -> std::string;
@@ -62,6 +57,6 @@ class Socket {
     [[nodiscard]] auto activitySet(const fd_set &readfds) const -> bool { return FD_ISSET(fd, &readfds); }
 
     [[nodiscard]] auto getIp() const -> in_addr_t { return ip; }
-    [[nodiscard]] auto getIpStr() const -> std::string { return ipToString(ip); }
+    [[nodiscard]] auto getIpStr() const -> std::string;
     [[nodiscard]] auto getPort() const -> uint16_t { return port; }
 };
