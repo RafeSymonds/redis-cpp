@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -12,6 +13,8 @@ constexpr std::string_view OK = "+OK\r\n";
 auto simpleString(std::string_view s) -> std::string;
 
 auto bulkString(std::string_view s) -> std::string;
+
+auto integer(int64_t value) -> std::string;
 
 auto array(const std::vector<std::string> &elements) -> std::string;
 

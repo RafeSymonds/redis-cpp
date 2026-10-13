@@ -15,6 +15,7 @@
 enum class Origin : uint8_t {
     CLIENT,     // reply, persist writes, propagate writes
     AOF_REPLAY, // apply only
+    MASTER,     // replica applying the master's stream: persist writes, no reply
 };
 
 class Redis {

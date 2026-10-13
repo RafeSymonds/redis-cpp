@@ -4,17 +4,20 @@
 #include <thread>
 
 #include "rdb/rdb.hpp"
+#include "redis/master_link.hpp"
 #include "redis/redis.hpp"
 #include "redis/session.hpp"
 #include "resp/encode.hpp"
+#include "utils/string_utils.hpp"
 
 namespace {
 
 auto makeRole(const RedisConfig &config) -> Role {
+    // In place: MasterRole owns a mutex and cannot be moved.
     if (config.replicaof.has_value()) {
-        return ReplicaRole(*config.replicaof);
+        return Role(std::in_place_type<ReplicaRole>, *config.replicaof);
     }
-    return MasterRole();
+    return Role(std::in_place_type<MasterRole>);
 }
 
 } // namespace
@@ -35,24 +38,36 @@ auto Redis::loadState() -> void {
 }
 
 auto Redis::execute(const std::vector<std::string> &args, Origin origin, Session *session) -> Reply {
-    const auto *command = registry.find(args[0]);
+    const auto *command = registry.find(toUpper(args[0]));
 
     if (command == nullptr) {
         throw std::runtime_error("unknown command");
     }
 
-    std::lock_guard guard(lock);
+    std::unique_lock guard(lock);
 
-    CommandContext ctx{.args = args, .store = store, .config = config, .role = role, .session = session};
+    CommandContext ctx{
+        .args = args, .store = store, .config = config, .role = role, .session = session, .lock = guard};
     auto reply = command->handler(ctx);
 
-    if (command->write && origin == Origin::CLIENT) {
+    if (command->write && origin != Origin::AOF_REPLAY) {
         auto encoded = resp::array(args);
         aof.append(encoded);
 
         if (auto *master = std::get_if<MasterRole>(&role)) {
             master->propagate(encoded);
         }
+    }
+
+    if (origin == Origin::MASTER) {
+        auto *replica = std::get_if<ReplicaRole>(&role);
+
+        if (replica == nullptr) {
+            throw std::runtime_error("Master has recieved message from master.");
+        }
+
+        auto encoded = resp::array(args);
+        replica->processCommand(encoded);
     }
 
     return reply;
@@ -65,11 +80,18 @@ auto Redis::run() -> void {
         std::println("Starting server with port {}", config.port);
         std::cout.flush();
 
-        if (auto *replica = std::get_if<ReplicaRole>(&role)) {
-            std::thread([replica, port = config.port]() { replica->connect(port); }).detach();
-        }
-
         auto server = Socket::createServer(config.port);
+
+        if (auto *replica = std::get_if<ReplicaRole>(&role)) {
+            std::thread([this, master = replica->getMaster()]() {
+                try {
+                    MasterLink(master, config.port, *this).run();
+                } catch (const std::exception &e) {
+                    std::println(std::cerr, "Could not connect to master: {}", e.what());
+                    std::cerr.flush();
+                }
+            }).detach();
+        }
 
         while (true) {
             auto client = server.acceptClient();

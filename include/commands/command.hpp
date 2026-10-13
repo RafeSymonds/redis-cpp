@@ -1,5 +1,6 @@
 #pragma once
 
+#include <mutex>
 #include <optional>
 #include <string>
 #include <vector>
@@ -21,6 +22,10 @@ struct CommandContext {
     const RedisConfig &config;
     Role &role;
     Session *session; // nullptr when there is no connection (AOF replay)
+
+    // The server lock, held while the handler runs. A blocking command (WAIT) may
+    // release it while it waits, and must reacquire it before returning.
+    std::unique_lock<std::mutex> &lock;
 };
 
 using CommandHandler = Reply (*)(CommandContext &ctx);

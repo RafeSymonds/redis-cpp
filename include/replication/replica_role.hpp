@@ -8,10 +8,12 @@
 class ReplicaRole {
     ReplicaOf master;
 
+    uint64_t totalCommandBytes = 0;
+
   public:
     explicit ReplicaRole(ReplicaOf master) : master(std::move(master)) {}
 
-    auto connect(uint16_t port) const -> void;
-
     [[nodiscard]] auto getMaster() const -> const ReplicaOf & { return master; }
+    [[nodiscard]] auto getTotalCommandBytes() const -> uint64_t { return totalCommandBytes; }
+    auto processCommand(const std::string &command) -> void { totalCommandBytes += command.size(); }
 };

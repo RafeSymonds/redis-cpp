@@ -1,3 +1,5 @@
+#include <algorithm>
+#include <cctype>
 #include <ranges>
 
 #include "utils/string_utils.hpp"
@@ -10,4 +12,9 @@ auto split(const std::string &str, char delim) -> std::vector<std::string> {
     }
 
     return result;
+}
+
+auto toUpper(std::string s) -> std::string {
+    std::ranges::transform(s, s.begin(), [](unsigned char c) { return std::toupper(c); });
+    return s;
 }

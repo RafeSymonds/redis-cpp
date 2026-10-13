@@ -4,3 +4,5 @@
 #include <vector>
 
 auto split(const std::string &str, char delim) -> std::vector<std::string>;
+
+auto toUpper(std::string s) -> std::string;
