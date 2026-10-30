@@ -33,3 +33,11 @@ add_executable(redis ${SOURCE_FILES})
 target_link_libraries(redis PRIVATE Threads::Threads cxxopts::cxxopts)
 
 target_include_directories(redis PRIVATE include)
+
+# Name libstdc++ explicitly so clangd (which defaults to libc++ on macOS) sees <generator>
+if(APPLE AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  set(LIBSTDCXX_INCLUDE_DIRS ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
+  list(FILTER LIBSTDCXX_INCLUDE_DIRS INCLUDE REGEX "/c\\+\\+/")
+  list(TRANSFORM LIBSTDCXX_INCLUDE_DIRS PREPEND "-isystem")
+  target_compile_options(redis PRIVATE -nostdinc++ ${LIBSTDCXX_INCLUDE_DIRS})
+endif()
