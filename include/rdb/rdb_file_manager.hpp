@@ -2,10 +2,7 @@
 #include <utility>
 
 #include "kv_store/kv_store.hpp"
-
-struct RDBConfig {
-    std::string dbfilename;
-};
+#include "rdb/rdb_config.hpp"
 
 class RDBFileManager {
 

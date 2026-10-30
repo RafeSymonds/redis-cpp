@@ -1,25 +1,13 @@
 #pragma once
 
-#include <filesystem>
 #include <string>
 
-#include "aof/aof_file_manager.hpp"
+#include "aof/aof_manager.hpp"
 #include "kv_store/kv_store.hpp"
 #include "net/socket_handle.hpp"
 #include "rdb/rdb_file_manager.hpp"
-#include "replication/replica_manager.hpp"
-
-constexpr uint32_t DEFAULT_PORT = 6379;
-
-struct RedisConfig {
-    std::string dir = std::filesystem::current_path();
-    RDBConfig rdb;
-    AOFConfig aof;
-    uint32_t port = DEFAULT_PORT;
-
-    std::optional<std::string> masterHostname;
-    std::optional<uint32_t> masterPort;
-};
+#include "redis/redis_config.hpp"
+#include "replication/role.hpp"
 
 class Redis {
     auto setup() -> void;
@@ -32,10 +20,10 @@ class Redis {
 
   public:
     RDBFileManager dbFileManager;
-    AOFFileManager aofFileManager;
+    AOFManager aofFileManager;
     KVStore kvStore;
 
-    std::optional<ReplicaManager> replicaManager;
+    Role role;
 
     uint32_t port;
     std::optional<std::string> masterHostname;

@@ -7,7 +7,7 @@
 #include <aof/aof_file_manager.hpp>
 #include <utils/string_utils.hpp>
 
-auto AOFFileManager::readCommands() const -> std::generator<std::vector<std::string>> {
+auto AOFManager::readCommands() const -> std::generator<std::vector<std::string>> {
     if (!config.appendonly || !std::filesystem::exists(manifestFullFilePath())) {
         co_return;
     }
@@ -25,7 +25,7 @@ auto AOFFileManager::readCommands() const -> std::generator<std::vector<std::str
     }
 }
 
-auto AOFFileManager::open() -> void {
+auto AOFManager::open() -> void {
     if (!config.appendonly) {
         return;
     }
@@ -53,7 +53,7 @@ auto AOFFileManager::open() -> void {
     fileHandle = std::move(file);
 }
 
-auto AOFFileManager::readManifestFileName() const -> std::string {
+auto AOFManager::readManifestFileName() const -> std::string {
     std::ifstream manifest(manifestFullFilePath());
     std::string keyword;
     std::string filename;
@@ -65,7 +65,7 @@ auto AOFFileManager::readManifestFileName() const -> std::string {
     return filename;
 }
 
-auto AOFFileManager::persistCommand(const std::string &command) -> void {
+auto AOFManager::persistCommand(const std::string &command) -> void {
     if (!config.appendonly) {
         return;
     }
